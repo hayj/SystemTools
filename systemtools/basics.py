@@ -227,26 +227,6 @@ def dictRandomElement(theDict):
 
 
 
-def partList(*args, **kwargs):
-    return chunks(*args, **kwargs)
-def chunks(*args, **kwargs):
-    return list(chunksYielder(*args, **kwargs))
-def chunksYielder(l, n):
-    """Yield successive n-sized chunks from l."""
-    if l is None:
-        yield None
-    elif len(l) <= 1:
-        yield l
-    elif n <= 1:
-        yield l
-    else:
-        n = math.ceil(len(l) / n)
-        if n >= len(l):
-            for current in l:
-                yield current
-        else:
-            for i in range(0, len(l), n):
-                yield l[i:i + n]
 
 def timestampToArrow(timestampInSec):
     return arrow.get(int(float(timestampInSec)))
@@ -254,7 +234,7 @@ def timestampToArrow(timestampInSec):
 def timestampMsToArrow(timestampInMs):
     return arrow.get(int(float(timestampInMs) / 1000.0))
 
-DATE_FORMAT = Enum("DATE_FORMAT", "datetimeString datetime timestamp arrow arrowString humanize")
+
 
 def isDateStr(dateStr):
     try:
@@ -424,11 +404,6 @@ def getMinDict(theDict):
 def getMaxDict(theDict):
     return max(theDict, key=theDict.get)
 
-def sortBy(theDict, desc=False, index=1):
-    data = theDict
-    if isinstance(theDict, dict):
-        data = theDict.items()
-    return sorted(data, key=itemgetter(index), reverse=desc)
 
 def countNone(theList):
     return sum(x is None for x in theList)
@@ -492,7 +467,30 @@ def normalize(theList):
 #         return [float(i) / max(theList) for i in theList]
 
 
+
+def partList(*args, **kwargs):
+    return chunks(*args, **kwargs)
+def chunks(*args, **kwargs):
+    return list(chunksYielder(*args, **kwargs))
+def chunksYielder(l, n):
+    """Yield successive n-sized chunks from l."""
+    if l is None:
+        yield None
+    elif len(l) <= 1:
+        yield l
+    elif n <= 1:
+        yield l
+    else:
+        n = math.ceil(len(l) / n)
+        if n >= len(l):
+            for current in l:
+                yield current
+        else:
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
+
 def chunkList(l, partsCount):
+    print("DEPRECATED, use chunks instead!")
     chunkedList = []
     partsItemNumber = int(math.ceil(float(len(l)) / float(partsCount)))
     for i in range(partsCount):
@@ -517,6 +515,13 @@ def crossValidationChunk(l, partsCount):
             currentListTrainingSet += current
         trainingSets.append(currentListTrainingSet)
     return (trainingSets, testSets)
+
+
+def sortBy(theDict, desc=False, index=1):
+    data = theDict
+    if isinstance(theDict, dict):
+        data = theDict.items()
+    return sorted(data, key=itemgetter(index), reverse=desc)
 
 def sortByKey(theDict):
     return OrderedDict(sorted(theDict.items()))
@@ -885,6 +890,7 @@ def addSpaceBeforeUpperCase(text):
     return re.sub('([a-z])([A-Z])', '\\1 \\2', text)
 
 def countOverlap(parsed1, parsed2, ngram):
+    print("countOverlap DEPRECATED, pls use NLPTools!")
     if len(parsed1) < ngram or len(parsed2) < ngram:
         return 0
     count = 0
@@ -979,7 +985,7 @@ def mergeDicts(*dict_args):
             result.update(dictionary)
     return result
 
-
+DATE_FORMAT = Enum("DATE_FORMAT", "datetimeString datetime timestamp arrow arrowString humanize")
 def convertDate(readableDate=None, dateFormat=DATE_FORMAT.datetime):
     """
         Warning : utc shift may appear...
@@ -1118,7 +1124,7 @@ if __name__ == '__main__':
 #     for i in range(1000):
 #         theDict[getRandomInt(0, 1000000)] = getRandomInt(0, 1000000)
 #     print(objectSize())
-    pass
+    test2()
 
 
 

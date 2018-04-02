@@ -18,16 +18,16 @@ class Timer:
         self.firstExec = True
         self.sleepFirst = sleepFirst
         self.mainThread = None
-    
+
     def isRunning(self):
         return not self.stopped
-    
+
     def sleep(self):
         sleepPart = self.interval / self.sleepCount
         for i in range(self.sleepCount):
             if self.isRunning():
                 time.sleep(sleepPart)
-    
+
     def run(self):
         self.stopped = False
         while not self.stopped:
@@ -37,12 +37,12 @@ class Timer:
                 self.callback()
             self.sleep()
             self.firstExec = False
-            
+
     def start(self):
         self.firstExec = True
         self.mainThread = Thread(target=self.run)
         self.mainThread.start()
-        
+
     def stop(self):
         self.stopped = True
 
@@ -59,10 +59,10 @@ class TicToc():
         self.marker = marker;
         self.msgSeparator = msgSeparator;
         self.maxDecimal = maxDecimal;
-    
+
     def setMaxDecimal(self, maxDecimal):
         self.maxDecimal = maxDecimal;
-    
+
     def tic(self, msg=None, display=True):
         """
             This method start the timer and print it, or print the time between the previous tic()
@@ -87,7 +87,7 @@ class TicToc():
                 self.p(self.marker + " tic: " + self.secondsToHumanReadableDuration(diffTime) + msg); # time duration from the previous tic()
             self.previousTime = currentTime;
             return diffTime;
-    
+
     def toc(self, msg=None, display=True):
         """
             This method print the elapsed time from the first tic().
@@ -106,7 +106,7 @@ class TicToc():
                 self.p(self.marker + " toc total duration: " + self.secondsToHumanReadableDuration(diffTime) + msg);
             return diffTime;
         return -1;
-        
+
     def p(self, text):
         if self.logger is not None:
             self.logger.p(text)
@@ -141,8 +141,6 @@ class TicToc():
             result += str(m) + "m "
         result += floatAsReadable(s) + "s"
         return result
-
-
 
 
 

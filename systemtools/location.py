@@ -15,24 +15,24 @@ import socket
 
 def decomposePath(path):
     """
-    :example:
-    >>> decomposePath(None)
-    >>> decomposePath("")
-    >>> decomposePath(1)
-    >>> decomposePath("truc")
-    ('', 'truc', '', 'truc')
-    >>> decomposePath("truc.txt")
-    ('', 'truc', 'txt', 'truc.txt')
-    >>> decomposePath("/home/truc.txt")
-    ('/home/', 'truc', 'txt', 'truc.txt')
-    >>> decomposePath("/home/truc.txt.bz2")
-    ('/home/', 'truc.txt', 'bz2', 'truc.txt.bz2')
-    >>> decomposePath("/truc.txt.bz2")
-    ('/', 'truc.txt', 'bz2', 'truc.txt.bz2')
-    >>> decomposePath("./truc.txt.bz2")
-    ('./', 'truc.txt', 'bz2', 'truc.txt.bz2')
-    >>> decomposePath(".truc.txt.bz2")
-    ('', '.truc.txt', 'bz2', '.truc.txt.bz2')
+        :example:
+        >>> decomposePath(None)
+        >>> decomposePath("")
+        >>> decomposePath(1)
+        >>> decomposePath("truc")
+        ('', 'truc', '', 'truc')
+        >>> decomposePath("truc.txt")
+        ('', 'truc', 'txt', 'truc.txt')
+        >>> decomposePath("/home/truc.txt")
+        ('/home/', 'truc', 'txt', 'truc.txt')
+        >>> decomposePath("/home/truc.txt.bz2")
+        ('/home/', 'truc.txt', 'bz2', 'truc.txt.bz2')
+        >>> decomposePath("/truc.txt.bz2")
+        ('/', 'truc.txt', 'bz2', 'truc.txt.bz2')
+        >>> decomposePath("./truc.txt.bz2")
+        ('./', 'truc.txt', 'bz2', 'truc.txt.bz2')
+        >>> decomposePath(".truc.txt.bz2")
+        ('', '.truc.txt', 'bz2', '.truc.txt.bz2')
     """
     if path is None or type(path) is not str or len(path) == 0:
         return None
@@ -170,6 +170,21 @@ def pap2():
     return "pap2"
 
 def sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=False):
+    """
+        See the README
+
+        :params:
+        regex : string
+            the pattern used to find files or folders
+        caseSensitive : boolean
+            set it as False if you don't want to take care of the case
+        sortBy : enum item
+            can be GlobSortEnum.<MTIME|NAME|SIZE|NUMERICAL_NAME>,
+            the last one is the same as name but take into account numbers
+            (e.g. test1.txt < test10.txt)
+        reverse : boolean
+            set it as True if you want to reverse the order
+    """
     def getFileNum(fileName):
         """
             :example:

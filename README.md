@@ -1,11 +1,26 @@
 
-# systemtools.duration
+# SystemTools
+
+This project gathers some useful basics Python functions and class. We organized them in different modules:
+
+ * **systemtools.duration**
+ * **systemtools.logger**
+ * **systemtools.location**
+ * **systemtools.basics**
+ * **systemtools.file**
+ * **systemtools.system**
+
+To install all:
+
+	pip install hjsystemtools
+
+## systemtools.duration
 
 This module provide some useful class to handle time.
 
 	>>> from systemtools.duration import *
 
-## TicToc
+### TicToc
 
 This class allow an easy print of computation time in your scripts:
 
@@ -24,7 +39,7 @@ You can give `msg` parameter to add a message to the printed duration. You can a
 
 The `tic` and `toc` methods return the time spent in seconds.
 
-## Timer
+### Timer
 
 This class call a function each n seconds:
 
@@ -37,7 +52,7 @@ You can stop it using:
 
 Set `sleepFirst=True` if you don't want to call your funct at the startup of the timer.
 
-# systemtools.logger
+## systemtools.logger
 
 A Logger class is a wrapper over `logging`.
 
@@ -69,7 +84,7 @@ You can also give a `Logger` instead of a class instance:
 	>>> logException(e, logger, verbose=myVerbose)
 	>>> ...
 
-# systemtools.location
+## systemtools.location
 
 This module gathers some useful functions on file system location.
 
@@ -83,7 +98,7 @@ This module gathers some useful functions on file system location.
  * **isFile(path)**: Return True is the given path is a file.
  * **decomposePath(path)**: Return a tuple (dir, filename, ext, filenameAndExt) of a path.
 
-# systemtools.basics
+## systemtools.basics
 
 This module gathers some useful basics functions.
 
@@ -116,7 +131,7 @@ This module gathers some useful basics functions.
  * **stripAllLines(text, removeBlank=True)**: Return the text but strip all lines.
 
 
-# systemtools.file
+## systemtools.file
 
 This module gathers some useful functions on file and directories management.
 
@@ -134,7 +149,7 @@ This module gathers some useful functions on file and directories management.
 * **strListToTmpFile**: Use `strToTmpFile` but for a list of strings which is concatened.
 * **normalizeNumericalFilePaths(globRegex)**: This function get a glob path and rename all "file1.json", "file2.json"... "file20.json" to "file01.json", "file02.json"... "file20.json" to better sort the folder by file names.
 
-# systemtools.system
+## systemtools.system
 
 This module gathers some useful functions on the OS management.
 

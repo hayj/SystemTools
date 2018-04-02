@@ -6,7 +6,7 @@ import importlib
 import re
 
 # Vars to set:
-description = "This lib provides some useful basics function on OS."
+description = "This project gathers some useful basics Python functions and class."
 author = "hayj"
 author_email = "hj@hayj.fr"
 version = "0.0.1" # replaced by the version in the main init file if exists
@@ -67,11 +67,19 @@ readme = None
 readmePath = thelibFolder + '/README.md'
 if os.path.isfile(readmePath):
     try:
+        print("Trying to convert README.md to rst format...")
         import pypandoc
         readme = pypandoc.convert(readmePath, 'rst')
-    except(IOError, ImportError):
+        # readme = readme.replace("**", "")
+        print(readme)
+    except(IOError, ImportError) as e:
+        print(e)
+        print("Cannot use pypandoc to convert the README...")
         readme = open(readmePath).read()
+else:
+    print("README.md not found.")
 
+print(readme)
 
 
 # The whole setup:

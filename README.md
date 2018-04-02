@@ -1,7 +1,7 @@
 
 # SystemTools
 
-This project gathers some useful basics Python functions and class. We organized them in different modules:
+This project gathers some useful Python functions and class. We organized them in different modules:
 
  * **systemtools.duration**
  * **systemtools.logger**
@@ -90,7 +90,7 @@ This module gathers some useful functions on file system location.
 
 	>>> from systemtools.location import *
 
- * **sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=False)**: This function works the same as glob.glob but return an ordered list of files path. The problem with the default that glob.glob return a list order which can change across OS or executions and it is prone to errors in your python script. You can use different orders via sortBy: GlobSortEnum.<MTIME|NAME|SIZE|NUMERICAL_NAME> the last one is the same as name but take into account numbers (e.g. test1.txt < test10.txt).
+ * **sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=False)**: This function works the same as glob.glob but return an ordered list of files path. glob.glob return (by default) a ordered list which can change across OS or executions and it is prone to errors in your python script. You can use different orders via sortBy: GlobSortEnum.<MTIME|NAME|SIZE|NUMERICAL_NAME> the last one is the same as name but take into account numbers (e.g. test1.txt < test10.txt).
  * **homeDir()** : Return the path of your home dir.
  * **tmpDir(_file_=None, subDir=None)**: Return the path of the tmp dir, If you give `__file__` in first param, the tmp dir will be "tmp" in the current directory, else it will be ~/tmp. You can set `subDir` in parameters.
  * **execDir(_file_=None)**: Get the current directory, it is better to give `__file__` in parameter to be sure to get the dir of the current Python script.

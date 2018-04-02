@@ -4,4 +4,8 @@ arrow
 pytz
 tzlocal
 sh
-pathlib
+pathlib; python_version < "3.4"
+tabulate
+requests
+xtract
+unidecode

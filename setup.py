@@ -6,10 +6,10 @@ import importlib
 import re
 
 # Vars to set:
-description = "This lib provides some useful basics function on OS."
+description = "This project gathers some useful basics Python functions and class."
 author = "hayj"
 author_email = "hj@hayj.fr"
-version = "0.0.1" # replaced by the version in the main init file if exists
+version = None # will be replaced by the version in the main init file if exists
 
 # Current dir:
 thelibFolder = os.path.dirname(os.path.realpath(__file__))
@@ -63,22 +63,31 @@ if os.path.isdir(packagePath):
 # thelib = importlib.import_module(mainPackageName)
 
 # Readme content:
-readme = None
-readmePath = thelibFolder + '/README.md'
-if os.path.isfile(readmePath):
-    try:
-        import pypandoc
-        readme = pypandoc.convert(readmePath, 'rst')
-    except(IOError, ImportError):
-        readme = open(readmePath).read()
+with open(thelibFolder + '/README.rst', "r") as fh:
+    readme = fh.read()
+# readme = None
+# readmePath = thelibFolder + '/README.md'
+# if os.path.isfile(readmePath):
+#     try:
+#         print("Trying to convert README.md to rst format...")
+#         import pypandoc
+#         readme = pypandoc.convert(readmePath, 'rst')
+#         # with open(readmePath, "r") as fh:
+#         #     readme = fh.read()
+#     except(IOError, ImportError) as e:
+#         print(e)
+#         print("Cannot use pypandoc to convert the README...")
+#         readme = open(readmePath).read()
+# else:
+#     print("README.md not found.")
 
-
+assert version is not None
 
 # The whole setup:
 setup(
 
     # The name for PyPi:
-    name="hjsystemtools",
+    name="systools", # systemtools, hjsystemtools
 
     # The version of the code which is located in the main __init__.py:
     version=version,
@@ -113,7 +122,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Utilities",
     ],
 

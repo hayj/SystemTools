@@ -26,7 +26,13 @@ if min <= 0 <= max:
 if min <= 1 <= max:
     class Test1(unittest.TestCase):
         def test1(self):
-            pass
+            self.assertTrue(tmpDir() == "/home/hayj/tmp")
+            self.assertTrue(tmpDir("aaa") == "/home/hayj/tmp/aaa")
+            from systemtools import config as systConf
+            systConf.tmpDirPath = "/home/hayj/tmp/tmp"
+            self.assertTrue(tmpDir() == "/home/hayj/tmp/tmp")
+            self.assertTrue(tmpDir("aaa") == "/home/hayj/tmp/tmp/aaa")
+
 
 if __name__ == '__main__':
     unittest.main() # Or execute as Python unit-test in eclipse

@@ -5,6 +5,8 @@ dist/
 _trash/
 trash/
 
+*hayj.py
+
 # Misc files:
 *.sh
 !README.md

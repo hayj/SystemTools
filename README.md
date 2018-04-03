@@ -37,7 +37,7 @@ This class allow an easy print of computation time in your scripts:
 
 You can give `msg` parameter to add a message to the printed duration. You can also choose to do not display anything using `display=False`.
 
-The `tic` and `toc` methods return the time spent in seconds.
+Both `tic` and `toc` methods return the time spent in seconds.
 
 ### Timer
 
@@ -117,7 +117,7 @@ This module gathers some useful basics functions.
  * **sortByKey(d)**: Sort a dict by the key. Return an OrderedDict.
  * **sortBy(l, desc=False, index=1)**: Sort a list of tuple (or an itemized dict) by the specific index given in parameters.
  * **chunks(l, n)**: Split `l` in n chunks. You can also use `chunksYielder`.
- * **normalize(l)**: Normalize (between 0.0 and 1.0) all elements of a list according to the sum of all elements. 
+ * **normalize(l)**: Normalize (between 0.0 and 1.0) all elements of a list according to the sum of all elements.
  * **truncateFloat(f, n)**: Truncate a float and keep n digits after the point.
  * **getRandomInt(a=None, b=None, seed=None, count=1)**: Return a random int between `a` and `b`.
  * **getRandomFloat(min=0.0, max=1.0, decimalMax=2)**: Return a random float between `min` and `max`.

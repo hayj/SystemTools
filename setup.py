@@ -70,16 +70,12 @@ if os.path.isfile(readmePath):
         print("Trying to convert README.md to rst format...")
         import pypandoc
         readme = pypandoc.convert(readmePath, 'rst')
-        # readme = readme.replace("**", "")
-        print(readme)
     except(IOError, ImportError) as e:
         print(e)
         print("Cannot use pypandoc to convert the README...")
         readme = open(readmePath).read()
 else:
     print("README.md not found.")
-
-print(readme)
 
 
 # The whole setup:

@@ -157,7 +157,7 @@ This module gathers some useful functions on the OS management.
 
 	>>> from systemtools.system import *
 
- * **getUsedPorts**: Return all busy ports on your machine (works on Linux using netstat).
+ * **getUsedPorts()**: Return all busy ports on your machine (works on Linux using netstat).
  * **getUser()**: Equivalent to `getpass.getuser()`
  * **setCallTimeout(timeout) and resetCallTimeout()**: Use `setCallTimeout` to set a timeout before calling a function (so you can catch an Exception if the function is too long), then reset the timeout.
  * **getRAMTotal()**: Return the amount of RAM in Go

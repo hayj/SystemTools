@@ -250,19 +250,54 @@ def varname(p):
         if m:
             return m.group(1)
 
-def getRandomName(addInt=True, maxInt=100):
-    path = getExecDir(__file__) + "/data/fr-names.txt"
-    names = None
-    with open(path, 'r') as f:
-        names = f.readlines()
-    for i in range(len(names)):
-        names[i] = names[i].strip()
-    if names is None or len(names) == 0:
+lastNamesSingleton = None
+def getRandomLastname(addInt=True, maxInt=100):
+    global lastNamesSingleton
+    if lastNamesSingleton is None:
+        path = getExecDir(__file__) + "/data/fr-lastnames.txt"
+        names = None
+        with open(path, 'r') as f:
+            names = f.readlines()
+        for i in range(len(names)):
+            names[i] = names[i].strip()
+        lastNamesSingleton = names
+    if lastNamesSingleton is None or len(lastNamesSingleton) == 0:
         return getRandomStr()
-    name = random.choice(names)
+    name = random.choice(lastNamesSingleton)
     if addInt:
         name = name + "-" + str(getRandomInt(0, maxInt))
     return name
+
+namesSingleton = None
+def getRandomName(addInt=True, maxInt=100):
+    global namesSingleton
+    if namesSingleton is None:
+        path = getExecDir(__file__) + "/data/fr-names.txt"
+        names = None
+        with open(path, 'r') as f:
+            names = f.readlines()
+        for i in range(len(names)):
+            names[i] = names[i].strip()
+        namesSingleton = names
+    if namesSingleton is None or len(namesSingleton) == 0:
+        return getRandomStr()
+    name = random.choice(namesSingleton)
+    if addInt:
+        name = name + "-" + str(getRandomInt(0, maxInt))
+    return name
+
+def getRandomEmail():
+    providers = ["yahoo.com"] * 3 + ["gmail.com", "yahoo.fr", "free.fr"]
+    provider = random.choice(providers)
+    name = stripAccents(getRandomName(addInt=False)).lower()
+    lastname = stripAccents(getRandomLastname(addInt=False)).lower()
+    name = name + "." + lastname
+    name += str(getRandomInt(100))
+    if getRandomBool():
+        name += str(getRandomInt(100, 1000))
+    randomEmail = name + "@" + provider
+    randomEmail = randomEmail.replace("-", "")
+    return randomEmail
 
 def getRandomStr(digitCount=10, withTimestamp=True):
     result = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(digitCount))
@@ -468,37 +503,7 @@ def normalize(theList):
 
 
 
-def partList(*args, **kwargs):
-    return chunks(*args, **kwargs)
-def chunks(*args, **kwargs):
-    return list(chunksYielder(*args, **kwargs))
-def chunksYielder(l, n):
-    """Yield successive n-sized chunks from l."""
-    if l is None:
-        yield None
-    elif len(l) <= 1:
-        yield l
-    elif n <= 1:
-        yield l
-    else:
-        n = math.ceil(len(l) / n)
-        if n >= len(l):
-            for current in l:
-                yield current
-        else:
-            for i in range(0, len(l), n):
-                yield l[i:i + n]
 
-def chunkList(l, partsCount):
-    print("DEPRECATED, use chunks instead!")
-    chunkedList = []
-    partsItemNumber = int(math.ceil(float(len(l)) / float(partsCount)))
-    for i in range(partsCount):
-        left = l[:partsItemNumber]
-        right = l[partsItemNumber:]
-        chunkedList.append(left)
-        l = right
-    return chunkedList
 
 def crossValidationChunk(l, partsCount):
     chunkedSet = chunkList(l, partsCount)
@@ -518,12 +523,18 @@ def crossValidationChunk(l, partsCount):
 
 
 def sortBy(theDict, desc=False, index=1):
+    """
+        return a sorted tuple, even if it's a python dict
+    """
     data = theDict
     if isinstance(theDict, dict):
         data = theDict.items()
     return sorted(data, key=itemgetter(index), reverse=desc)
 
 def sortByKey(theDict):
+    """
+        Return an OrderedDict from a dict sorted by keys
+    """
     return OrderedDict(sorted(theDict.items()))
 
 def floatAsReadable(f):
@@ -690,6 +701,8 @@ def representsInt(s, acceptRoundedFloats=False):
 def listToStr2(obj, indent=4):
     return json.dumps(obj, indent=indent, sort_keys=True)
 
+def lts(*args, **kwargs):
+    return listToStr(*args, **kwargs)
 def listToStr(l, depth=0):
     tabs = ""
     for i in range(depth):
@@ -979,10 +992,15 @@ def mergeDicts(*dict_args):
     Given any number of dicts, shallow copy and merge into a new dict,
     precedence goes to key value pairs in latter dicts.
     """
+#     result = {}
+#     for dictionary in dict_args:
+#         if dictionary is not None:
+#             result.update(dictionary)
+#     return result
     result = {}
     for dictionary in dict_args:
         if dictionary is not None:
-            result.update(dictionary)
+            result = {**result, **dictionary}
     return result
 
 DATE_FORMAT = Enum("DATE_FORMAT", "datetimeString datetime timestamp arrow arrowString humanize")
@@ -1034,6 +1052,17 @@ def convertDate(readableDate=None, dateFormat=DATE_FORMAT.datetime):
         return None
 
 
+
+
+def listSubstract(a, b):
+    if a is None:
+        return []
+    elif b is None:
+        return a
+    else:
+        return [item for item in a if item not in b]
+
+
 def test1():
     for readableDate in [
                         None,
@@ -1062,6 +1091,9 @@ def test1():
             print(str(convertDate(readableDate, dateFormat=currentDateFormat)) + "\t\t" + str(currentDateFormat))
         print()
         print()
+
+
+
 def test2():
         dateObj = datetime.now()
         dateObj = 'now'
@@ -1079,13 +1111,78 @@ def testPartList():
         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     ]
     for current in lists:
-        printLTS(list(partList(current, 0)))
-        printLTS(list(partList(current, 1)))
-        printLTS(list(partList(current, 2)))
-        printLTS(list(partList(current, 3)))
-        printLTS(list(partList(current, 4)))
+        printLTS(list(partListDeprecated(current, 0)))
+        printLTS(list(partListDeprecated(current, 1)))
+        printLTS(list(partListDeprecated(current, 2)))
+        printLTS(list(partListDeprecated(current, 3)))
+        printLTS(list(partListDeprecated(current, 4)))
+
+
+def chunkList(l, partsCount):
+    print("DEPRECATED, use chunksDeprecated instead!")
+    chunkedList = []
+    partsItemNumber = int(math.ceil(float(len(l)) / float(partsCount)))
+    for i in range(partsCount):
+        left = l[:partsItemNumber]
+        right = l[partsItemNumber:]
+        chunkedList.append(left)
+        l = right
+    return chunkedList
+def partListDeprecated(*args, **kwargs):
+    return chunksDeprecated(*args, **kwargs)
+def chunksDeprecated(*args, **kwargs):
+    return list(chunksYielderDepprecated(*args, **kwargs))
+def chunksYielderDepprecated(l, n):
+    """Yield successive n-sized chunksDeprecated from l."""
+    if l is None:
+        yield None
+    elif len(l) <= 1:
+        yield l
+    elif n <= 1:
+        yield l
+    else:
+        n = math.ceil(len(l) / n)
+        if n >= len(l):
+            for current in l:
+                yield current
+        else:
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
+
+def chunk(*args, **kwargs):
+    return chunks(*args, **kwargs)
+def chunks(*args, **kwargs):
+    return list(chunksYielder(*args, **kwargs))
+def chunksYielder(l, n):
+    """Yield successive n-sized chunksDeprecated from l."""
+    if l is None:
+        return []
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+
+def split(l, n):
+    """
+        Split a list in n parts
+    """
+    if l is None:
+        return []
+#     avg = len(l) / float(n)
+#     out = []
+#     last = 0.0
+#
+#     while last < len(l):
+#         out.append(l[int(last):int(last + avg)])
+#         last += avg
+#
+#     return out
+    return [l[i::n] for i in range(n)]
 
 if __name__ == '__main__':
+
+    for i in range(1000):
+        print(getRandomEmail())
+    exit()
 #     print(normalize([0.5, 0.5, 1.0, 2.0]))
 #     print(normalize([0.2, 0.2, 0.4, 0.2]))
 #     print(normalize([20, 20, 40, 20]))
@@ -1124,17 +1221,11 @@ if __name__ == '__main__':
 #     for i in range(1000):
 #         theDict[getRandomInt(0, 1000000)] = getRandomInt(0, 1000000)
 #     print(objectSize())
-    test2()
+#     test2()
 
+    l = list(range(100))
+    printLTS(chunksDeprecated(l, 6))
 
-
-def listSubstract(a, b):
-    if a is None:
-        return []
-    elif b is None:
-        return a
-    else:
-        return [item for item in a if item not in b]
 
 
 

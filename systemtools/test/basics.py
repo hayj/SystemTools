@@ -11,24 +11,24 @@ from systemtools import basics
 from systemtools.basics import *
 
 # The level allow the unit test execution to choose only the top level test
-min = 0
-max = 0
-assert min <= max
+mini = 0
+maxi = 3
+assert mini <= maxi
 
 print("==============\nStarting unit tests...")
 
-if min <= 0 <= max:
+if mini <= 0 <= maxi:
     class DocTest(unittest.TestCase):
         def testDoctests(self):
             """Run doctests"""
             doctest.testmod(basics)
 
-if min <= 1 <= max:
+if mini <= 1 <= maxi:
     class Test1(unittest.TestCase):
         def test1(self):
             pass
 
-if min <= 2 <= max:
+if mini <= 2 <= maxi:
     class Test2(unittest.TestCase):
         def test1(self):
             d1 = [1, 2, 3]
@@ -57,6 +57,73 @@ if min <= 2 <= max:
             self.assertTrue(intersection([d3, d4]) == ["cc"])
             self.assertTrue(intersection([d1, d3, d2]) == [])
             self.assertTrue(intersection([d1, d2, d4]) == ["aa"])
+
+if mini <= 3 <= maxi:
+    class Test3(unittest.TestCase):
+        def test1(self):
+            l = list(range(100))
+            result = chunks(l, 6)
+            printLTS(result)
+            self.assertTrue(len(result) == math.ceil(100/6))
+            result = split(l, 6)
+            printLTS(result)
+            self.assertTrue(len(result) == 6)
+
+
+            l = list(range(7))
+            result = chunks(l, 6)
+            printLTS(result)
+            self.assertTrue(len(result) == 2)
+            self.assertTrue(len(result[0]) == 6)
+            self.assertTrue(len(result[1]) == 1)
+            result = split(l, 6)
+            printLTS(result)
+            self.assertTrue(len(result) == 6)
+
+            l = []
+            result = chunks(l, 1)
+            self.assertTrue(len(result) == 0)
+            result = chunks(l, 2)
+            self.assertTrue(len(result) == 0)
+            result = split(l, 1)
+            self.assertTrue(len(result) == 1)
+            result = split(l, 2)
+            self.assertTrue(len(result) == 2)
+
+            l = None
+            self.assertTrue(split(l, 1) == [])
+            self.assertTrue(chunks(l, 1) == [])
+
+            l = [1]
+            result = chunks(l, 1)
+            self.assertTrue(len(result) == 1)
+            self.assertTrue(len(result[0]) == 1)
+            result = chunks(l, 2)
+            self.assertTrue(len(result) == 1)
+            self.assertTrue(result == [[1]])
+            result = split(l, 1)
+            self.assertTrue(len(result) == 1)
+            self.assertTrue(result == [[1]])
+            result = split(l, 2)
+            self.assertTrue(len(result) == 2)
+            self.assertTrue(result == [[1], []])
+
+            l = list(range(10))
+            result = chunks(l, 12)
+            printLTS(result)
+            self.assertTrue(len(result) == 1)
+            result = split(l, 12)
+            self.assertTrue(len(result) == 12)
+
+
+            l = [1]
+            result = split(l, 1)
+            self.assertTrue(len(result) == 1)
+            l = [1]
+            result = split(l, 6)
+            self.assertTrue(len(result) == 6)
+
+
 
 if __name__ == '__main__':
     unittest.main() # Or execute as Python unit-test in eclipse

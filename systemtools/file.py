@@ -164,7 +164,7 @@ def fileToStrListYielder(path,
                          skipBlank=True,
                          commentStart="###",
                          logger=None,
-                         verbose=True):
+                         verbose=False):
 
     if path is not None and isFile(path):
         commentCount = 0
@@ -181,11 +181,10 @@ def fileToStrListYielder(path,
                         pass
                     else:
                         yield line
-        if verbose and commentCount > 0:
+        if commentCount > 0:
             basicLog("We found " + str(commentCount) + " comments in " + path, logger, verbose)
     else:
-        if verbose:
-            basicLog(str(path) + " file not found.", logger, verbose)
+        basicLog(str(path) + " file not found.", logger, verbose)
 
 
 def removeIfExists(path):
@@ -226,6 +225,27 @@ def strToTmpFile(text, name=None, ext="", addRandomStr=False, *args, **kwargs):
     strToFile(text, path)
     return path
 
+def strToFileAppend(*args, **kwargs):
+    appendFile(*args, **kwargs)
+def appendToFile(*args, **kwargs):
+    appendFile(*args, **kwargs)
+def appendStrToFile(*args, **kwargs):
+    appendFile(*args, **kwargs)
+def appendFile(text, path, addBreakLine=True):
+    if text is None:
+        return
+    if isinstance(text, list):
+        text = "\n".join(text)
+    with open(path, "a") as f:
+        if addBreakLine:
+            text = "\n" + str(text)
+        f.write(text)
+
+
+
+
+def strListToFile(*args, **kwargs):
+    strToFile(*args, **kwargs)
 def strToFile(text, path):
 #     if not isDir(getDir(path)) and isDir(getDir(text)):
 #         path, text = text, path

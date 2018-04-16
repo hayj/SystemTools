@@ -116,7 +116,8 @@ This module gathers some useful basics functions.
  * **floatAsReadable**: Convert a float to a readble string without "e-X".
  * **sortByKey(d)**: Sort a dict by the key. Return an OrderedDict.
  * **sortBy(l, desc=False, index=1)**: Sort a list of tuple (or an itemized dict) by the specific index given in parameters.
- * **chunks(l, n)**: Split `l` in n chunks. You can also use `chunksYielder`.
+ * **chunks(l, n)**: return a list of list (of len n) from `l`. You can also use `chunksYielder`.
+ * **split(l, n)**: split a list in n parts.
  * **normalize(l)**: Normalize (between 0.0 and 1.0) all elements of a list according to the sum of all elements.
  * **truncateFloat(f, n)**: Truncate a float and keep n digits after the point.
  * **getRandomInt(a=None, b=None, seed=None, count=1)**: Return a random int between `a` and `b`.

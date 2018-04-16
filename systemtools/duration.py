@@ -7,7 +7,7 @@ from threading import Thread
 
 
 class Timer:
-    def __init__(self, callback, interval, sleepFirst=False, sleepCount=1000):
+    def __init__(self, callback, interval, *args, sleepFirst=False, sleepCount=1000, **kwargs):
         """
             interval in seconds
         """
@@ -18,6 +18,11 @@ class Timer:
         self.firstExec = True
         self.sleepFirst = sleepFirst
         self.mainThread = None
+        self.setArgs(*args, **kwargs)
+
+    def setArgs(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
 
     def isRunning(self):
         return not self.stopped
@@ -34,7 +39,7 @@ class Timer:
             if self.firstExec and self.sleepFirst:
                 self.sleep()
             if self.isRunning():
-                self.callback()
+                self.callback(*self.args, **self.kwargs)
             self.sleep()
             self.firstExec = False
 

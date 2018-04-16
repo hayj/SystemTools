@@ -114,7 +114,7 @@ This module gathers some useful basics functions.
  * **printLTS(l)**: Pretty print a list or a dict. Use `listToStr` internally.
  * **listToStr(l)**: Convert a list or a dict to a pretty string.
  * **floatAsReadable**: Convert a float to a readble string without "e-X".
- * **sortByKey(d)**: Sort a dict by the key. Return an OrderedDict.
+ * **sortByKey(d)**: Sort a dict by the key. Return an `OrderedDict`.
  * **sortBy(l, desc=False, index=1)**: Sort a list of tuple (or an itemized dict) by the specific index given in parameters.
  * **chunks(l, n)**: return a list of list (of len n) from `l`. You can also use `chunksYielder`.
  * **split(l, n)**: split a list in n parts.
@@ -130,6 +130,7 @@ This module gathers some useful basics functions.
  * **reduceStr**: Reduce a str, you can set booleans removeNumbers, toLowerCase, removeAccents and removePunct.
  * **varname(p)**: Return the name of p from the Python script.
  * **stripAllLines(text, removeBlank=True)**: Return the text but strip all lines.
+ * **byteToStr(b)**: Convert bytes to str.
 
 
 ## systemtools.file

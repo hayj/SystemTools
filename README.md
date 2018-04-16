@@ -111,7 +111,7 @@ This module gathers some useful basics functions.
  * **removeAllNumbers(text)**: Remove all numbers from a string.
  * **reduceDictStr**: See the code for parameters. Reduce all strings of a dict in order to print it.
  * **stripAccents(text)**: Remove all accents of a string.
- * **printLTS(l)**: Pretty print a list or a dict. Use `listToStr`
+ * **printLTS(l)**: Pretty print a list or a dict. Use `listToStr` internally.
  * **listToStr(l)**: Convert a list or a dict to a pretty string.
  * **floatAsReadable**: Convert a float to a readble string without "e-X".
  * **sortByKey(d)**: Sort a dict by the key. Return an OrderedDict.
@@ -125,7 +125,7 @@ This module gathers some useful basics functions.
  * **getRandomStr(digitCount=10, withTimestamp=True)**: Return a random string with a timestamp if enabled.
  * **getRandomName(addInt=True, maxInt=100)**: Return a random name with a random int.
  * **Random class**: This class is useful when you want to seed random values and reset it after the class usage. See the code for more informations.
- * **dictContains(d, key)**: Equivalent to key in d and d[key] is not None.
+ * **dictContains(d, key)**: Equivalent to `key in d and d[key] is not None`.
  * **intersection(lists)**: Return the intersection of all lists.
  * **reduceStr**: Reduce a str, you can set booleans removeNumbers, toLowerCase, removeAccents and removePunct.
  * **varname(p)**: Return the name of p from the Python script.

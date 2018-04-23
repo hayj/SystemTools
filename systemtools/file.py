@@ -7,9 +7,9 @@ import time
 from enum import Enum
 import pickle
 import string
-
-from systemtools.location import isFile, getDir, isDir, sortedGlob, decomposePath, tmpDir
+from systemtools.location import isFile, getDir, isDir, sortedGlob, decomposePath, tmpDir, homeDir
 from systemtools.basics import getRandomStr
+import subprocess, zipfile
 
 
 class TIMESPENT_UNIT(Enum):
@@ -301,11 +301,67 @@ def normalizeNumericalFilePaths(globRegex):
     return True
 
 
+def encryptFile(path, key, text=None, ext=".encrypted.zip", logger=None, verbose=True):
+    """
+        This function encrypt a file, if you give text in `text` parameter,
+        the function will create the file.
+        Return True if all is ok.
+    """
+    try:
+        if text is not None:
+            strToFile(text, path)
+        rc = subprocess.call(['7z', 'a', '-p' + key, '-y', path + ext, path])
+        removeFile(path)
+        return True
+    except Exception as e:
+        if verbose:
+            if logger is None:
+                print(str(e))
+            else:
+                logger.error(str(e))
+        return False
+def decryptFile(path, key, ext=".encrypted.zip", logger=None, verbose=True):
+    """
+        This function decrypt a file and return the text
+    """
+    try:
+        (dir, _, _, _) = decomposePath(path)
+        print(dir)
+        key = str.encode(key)
+        if path[-len(ext):] != ext:
+            decryptedFilePath = path
+            cryptedFilePath = decryptedFilePath + ext
+        else:
+            cryptedFilePath = path
+            decryptedFilePath = path[:-len(ext)]
+        zipfile.ZipFile(cryptedFilePath).extractall(dir, None, key)
+        removeFile(cryptedFilePath)
+        return fileToStr(decryptedFilePath)
+    except Exception as e:
+        if verbose:
+            if logger is None:
+                print(str(e))
+            else:
+                logger.error(str(e))
+        return None
+
 if __name__ == '__main__':
 #     normalizeNumericalFilePaths("/home/hayj/test/test1/*.txt")
 #     normalizeNumericalFilePaths("/users/modhel/hayj/NoSave/Data/TwitterArchiveOrg/Converted/*.bz2")
-    strToTmpFile("hoho", subDir="test", ext="txt")
-    strToFile("haha", tmpDir(subDir="test") + "/test.txt")
+#     strToTmpFile("hoho", subDir="test", ext="txt")
+#     strToFile("haha", tmpDir(subDir="test") + "/test.txt")
+
+#     key = 'AAA'
+#     text = "bbb"
+#     print(encryptFile(homeDir() + '/tmp/titi.txt', key, text=text))
+#
+#
+#     text = decryptFile(homeDir() + '/tmp/titi.txt', key)
+#
+#     print(text)
+
+    pass
+
 
 
 

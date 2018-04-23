@@ -301,7 +301,7 @@ def normalizeNumericalFilePaths(globRegex):
     return True
 
 
-def encryptFile(path, key, text=None, ext=".encrypted.zip", logger=None, verbose=True):
+def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=True, logger=None, verbose=True):
     """
         This function encrypt a file, if you give text in `text` parameter,
         the function will create the file.
@@ -311,7 +311,8 @@ def encryptFile(path, key, text=None, ext=".encrypted.zip", logger=None, verbose
         if text is not None:
             strToFile(text, path)
         rc = subprocess.call(['7z', 'a', '-p' + key, '-y', path + ext, path])
-        removeFile(path)
+        if remove:
+            removeFile(path)
         return True
     except Exception as e:
         if verbose:
@@ -320,7 +321,7 @@ def encryptFile(path, key, text=None, ext=".encrypted.zip", logger=None, verbose
             else:
                 logger.error(str(e))
         return False
-def decryptFile(path, key, ext=".encrypted.zip", logger=None, verbose=True):
+def decryptFile(path, key, ext=".encrypted.zip", remove=True, logger=None, verbose=True):
     """
         This function decrypt a file and return the text
     """
@@ -335,7 +336,8 @@ def decryptFile(path, key, ext=".encrypted.zip", logger=None, verbose=True):
             cryptedFilePath = path
             decryptedFilePath = path[:-len(ext)]
         zipfile.ZipFile(cryptedFilePath).extractall(dir, None, key)
-        removeFile(cryptedFilePath)
+        if remove:
+            removeFile(cryptedFilePath)
         return fileToStr(decryptedFilePath)
     except Exception as e:
         if verbose:

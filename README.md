@@ -150,8 +150,8 @@ This module gathers some useful functions on file and directories management.
 * **strToTmpFile(text, name=None, ext="", addRandomStr=False)**: Store a string to a tmp file (using `tmpDir` function). Example: strToTmpFile("a", "test.txt").
 * **strListToTmpFile**: Use `strToTmpFile` but for a list of strings which is concatened.
 * **normalizeNumericalFilePaths(globRegex)**: This function get a glob path and rename all "file1.json", "file2.json"... "file20.json" to "file01.json", "file02.json"... "file20.json" to better sort the folder by file names.
-* **encryptFile(path, key, text=None, ext=".encrypted.zip")**: This function encrypt a file, if you give text in `text` parameter, the function will create the file. Return True if all is ok. You need to install 7zip using `sudo apt-get install p7zip-full` on Linux.
-* **decryptFile(path, key, ext=".encrypted.zip")**: This function decrypt a file and return the text.
+* **encryptFile(path, key, text=None, remove=True)**: This function encrypt a file, if you give text in `text` parameter, the function will create the file. Return True if all is ok. You need to install 7zip using `sudo apt-get install p7zip-full` on Linux. Set remove as `False` if you don't want to remove the decrypted file.
+* **decryptFile(path, key, remove=True)**: This function decrypt a file and return the text. Set remove as `False` if you don't want to remove the encrypted file.
 
 ## systemtools.system
 

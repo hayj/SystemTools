@@ -138,7 +138,7 @@ This module gathers some useful basics functions on number parsing.
 
  * **parseNumber(text)**: Parse the first number in the given text for any locale.
  * **getAllNumbers(text, removeCommas=False)**: Return all numbers in a string. You can also use `getFirstNumber`.
- * **getFirstNumber(text, *args, **kwargs)**: Get the first numbers of a string.
+ * **getFirstNumber(text)**: Get the first numbers of a string.
  * **removeAllNumbers(text)**: Remove all numbers from a string.
  * **truncateFloat(f, n)**: Truncates/pads a float f to n decimal places without rounding.
 

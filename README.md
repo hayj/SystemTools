@@ -7,6 +7,7 @@ This project gathers some useful Python functions and class. We organized them i
  * **systemtools.logger**
  * **systemtools.location**
  * **systemtools.basics**
+ * **systemtools.number**
  * **systemtools.file**
  * **systemtools.system**
 
@@ -107,8 +108,6 @@ This module gathers some useful basics functions.
 * **listSubstract(a, b)**: Substract all `b` items from `a`.
 * **convertDate(readableDate=None, dateFormat=DATE_FORMAT.datetime)**: Convert a readable date (wrote by a human) in a date format you chose. Warning : utc shift may appear. DATE_FORMAT enum contains "datetimeString datetime timestamp arrow arrowString humanize".
  * **mergeDicts(dict1, ...)**: shallow copy of all dict and merge into a new dict
- * **getAllNumbers(text, removeCommas=False)**: Return all numbers in a string. You can also use `getFirstNumber`.
- * **removeAllNumbers(text)**: Remove all numbers from a string.
  * **reduceDictStr**: See the code for parameters. Reduce all strings of a dict in order to print it.
  * **stripAccents(text)**: Remove all accents of a string.
  * **printLTS(l)**: Pretty print a list or a dict. Use `listToStr` internally.
@@ -119,7 +118,6 @@ This module gathers some useful basics functions.
  * **chunks(l, n)**: return a list of list (of len n) from `l`. You can also use `chunksYielder`.
  * **split(l, n)**: split a list in n parts.
  * **normalize(l)**: Normalize (between 0.0 and 1.0) all elements of a list according to the sum of all elements.
- * **truncateFloat(f, n)**: Truncate a float and keep n digits after the point.
  * **getRandomInt(a=None, b=None, seed=None, count=1)**: Return a random int between `a` and `b`.
  * **getRandomFloat(min=0.0, max=1.0, decimalMax=2)**: Return a random float between `min` and `max`.
  * **getRandomStr(digitCount=10, withTimestamp=True)**: Return a random string with a timestamp if enabled.
@@ -132,6 +130,17 @@ This module gathers some useful basics functions.
  * **stripAllLines(text, removeBlank=True)**: Return the text but strip all lines.
  * **byteToStr(b)**: Convert bytes to str.
 
+## systemtools.number
+
+This module gathers some useful basics functions on number parsing.
+
+	>>> from systemtools.number import *
+
+ * **parseNumber(text)**: Parse the first number in the given text for any locale.
+ * **getAllNumbers(text, removeCommas=False)**: Return all numbers in a string. You can also use `getFirstNumber`.
+ * **getFirstNumber(text, *args, **kwargs)**: Get the first numbers of a string.
+ * **removeAllNumbers(text)**: Remove all numbers from a string.
+ * **truncateFloat(f, n)**: Truncates/pads a float f to n decimal places without rounding.
 
 ## systemtools.file
 

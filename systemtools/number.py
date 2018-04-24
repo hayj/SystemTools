@@ -5,8 +5,8 @@ import re
 def parseNumber(text):
     """
         Return the first number in the given text for any locale.
-        TODO take into account spaces for only 3-digited
-        numbers (like "1 000") so "1 0" is 10.
+        TODO we actually don't take into account spaces for only
+        3-digited numbers (like "1 000") so, for now, "1 0" is 10.
         TODO parse cases like "125,000.1,0.2" (125000.1).
 
         :example:

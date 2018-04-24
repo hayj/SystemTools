@@ -136,7 +136,7 @@ This module gathers some useful basics functions on number parsing.
 
 	>>> from systemtools.number import *
 
- * **parseNumber(text)**: Parse the first number in the given text for any locale.
+ * **parseNumber(text)**: Return the first number in the given text for any locale.
  * **getAllNumbers(text, removeCommas=False)**: Return all numbers in a string. You can also use `getFirstNumber`.
  * **getFirstNumber(text)**: Get the first numbers of a string.
  * **removeAllNumbers(text)**: Remove all numbers from a string.

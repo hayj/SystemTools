@@ -12,7 +12,7 @@ from systemtools.basics import *
 
 # The level allow the unit test execution to choose only the top level test
 mini = 0
-maxi = 3
+maxi = 5
 assert mini <= maxi
 
 print("==============\nStarting unit tests...")

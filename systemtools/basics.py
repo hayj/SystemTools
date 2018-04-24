@@ -35,6 +35,7 @@ import pytz
 from tzlocal import get_localzone
 from dateutil import tz
 from dateutil.tz import tzlocal
+from systemtools.number import *
 
 def stripAllLines(text, removeBlank=True):
     if text is None or not isinstance(text, str) or text == "":
@@ -483,13 +484,6 @@ def maxTupleList(tupleList, index, getAll=True):
         return max(tupleList, key=itemgetter(index))[0]
 
 
-def truncateFloat(f, n):
-    '''Truncates/pads a float f to n decimal places without rounding'''
-    s = '{}'.format(f)
-    if 'e' in s or 'E' in s:
-        return float('{0:.{1}f}'.format(f, n))
-    i, p, d = s.partition('.')
-    return float('.'.join([i, (d+'0'*n)[:n]]))
 
 def listMean(l):
     return np.mean(l)
@@ -537,59 +531,7 @@ def sortByKey(theDict):
     """
     return OrderedDict(sorted(theDict.items()))
 
-def floatAsReadable(f):
-    """
-        source https://stackoverflow.com/questions/8345795/force-python-to-not-output-a-float-in-standard-form-scientific-notation-expo
-    """
-    _ftod_r = re.compile(br'^(-?)([0-9]*)(?:\.([0-9]*))?(?:[eE]([+-][0-9]+))?$')
-    """Print a floating-point number in the format expected by PDF:
-    as short as possible, no exponential notation."""
-    s = bytes(str(f), 'ascii')
-    m = _ftod_r.match(s)
-    if not m:
-        raise RuntimeError("unexpected floating point number format: {!a}"
-                           .format(s))
-    sign = m.group(1)
-    intpart = m.group(2)
-    fractpart = m.group(3)
-    exponent = m.group(4)
-    if ((intpart is None or intpart == b'') and
-        (fractpart is None or fractpart == b'')):
-        raise RuntimeError("unexpected floating point number format: {!a}"
-                           .format(s))
 
-    # strip leading and trailing zeros
-    if intpart is None: intpart = b''
-    else: intpart = intpart.lstrip(b'0')
-    if fractpart is None: fractpart = b''
-    else: fractpart = fractpart.rstrip(b'0')
-
-    result = None
-
-    if intpart == b'' and fractpart == b'':
-        # zero or negative zero; negative zero is not useful in PDF
-        # we can ignore the exponent in this case
-        result = b'0'
-
-    # convert exponent to a decimal point shift
-    elif exponent is not None:
-        exponent = int(exponent)
-        exponent += len(intpart)
-        digits = intpart + fractpart
-        if exponent <= 0:
-            result = sign + b'.' + b'0'*(-exponent) + digits
-        elif exponent >= len(digits):
-            result = sign + digits + b'0'*(exponent - len(digits))
-        else:
-            result = sign + digits[:exponent] + b'.' + digits[exponent:]
-
-    # no exponent, just reassemble the number
-    elif fractpart == b'':
-        result = sign + intpart # no need for trailing dot
-    else:
-        result = sign + intpart + b'.' + fractpart
-
-    return result.decode("utf-8")
 
 
 def byteToStr(data):
@@ -659,44 +601,7 @@ def isBooleanList(l):
 
 
 
-def representsInt(s, acceptRoundedFloats=False):
-    """
-        This function return True if the given param (string or float) represents a int
 
-        :Example:
-        >>> representsInt(1)
-        True
-        >>> representsInt("1")
-        True
-        >>> representsInt("a")
-        False
-        >>> representsInt("1.1")
-        False
-        >>> representsInt(1.1)
-        False
-        >>> representsInt(42.0, acceptRoundedFloats=True)
-        True
-        >>> representsInt("42.0", acceptRoundedFloats=True)
-        True
-    """
-
-    if isinstance(s, float):
-        if acceptRoundedFloats:
-            return s.is_integer()
-    else:
-        if acceptRoundedFloats:
-            try:
-                s = float(s)
-                return representsInt(s, acceptRoundedFloats=acceptRoundedFloats)
-            except ValueError:
-                return False
-        else:
-            try:
-                int(s)
-                return True
-            except ValueError:
-                return False
-    return False
 
 def listToStr2(obj, indent=4):
     return json.dumps(obj, indent=indent, sort_keys=True)
@@ -919,69 +824,7 @@ def deleteDuplicate(l):
     return list(set(l))
 
 
-def removeCommasBetweenDigits(text):
-    """
-        :example:
-        >>> removeCommasBetweenDigits("sfeyv dsf,54dsf ef 6, 6 zdgy 6,919 Photos and 3,3 videos6,")
-        'sfeyv dsf,54dsf ef 6, 6 zdgy 6919 Photos and 33 videos6,'
-    """
-    if text is None:
-        return None
-    else:
-        return re.sub(r"([0-9]),([0-9])", "\g<1>\g<2>", text)
 
-def getAllNumbers(text, removeCommas=False):
-    if text is None:
-        return None
-    if removeCommas:
-        text = removeCommasBetweenDigits(text)
-    allNumbers = []
-    if len(text) > 0:
-        # Remove space between digits :
-        spaceNumberExists = True
-        while spaceNumberExists:
-            text = re.sub('(([^.,0-9]|^)[0-9]+) ([0-9])', '\\1\\3', text, flags=re.UNICODE)
-            if re.search('([^.,0-9]|^)[0-9]+ [0-9]', text) is None:
-                spaceNumberExists = False
-        numberRegex = '[-+]?[0-9]+[.,][0-9]+|[0-9]+'
-        allMatchIter = re.finditer(numberRegex, text)
-        if allMatchIter is not None:
-            for current in allMatchIter:
-                currentFloat = current.group()
-                currentFloat = re.sub("\s", "", currentFloat)
-                currentFloat = re.sub(",", ".", currentFloat)
-                currentFloat = float(currentFloat)
-                if currentFloat.is_integer():
-                    allNumbers.append(int(currentFloat))
-                else:
-                    allNumbers.append(currentFloat)
-    return allNumbers
-
-def removeAllNumbers(text):
-    if text is None:
-        return None
-    if len(text) == 0:
-        return ""
-    # Remove space between digits :
-    spaceNumberExists = True
-    while spaceNumberExists:
-        text = re.sub('([0-9]) ([0-9])', '\\1\\2', text, flags=re.UNICODE)
-        if re.search('[0-9] [0-9]', text) is None:
-            spaceNumberExists = False
-    numberRegex = '[-+]?[0-9]+[.,][0-9]+|[0-9]+'
-    numberExists = True
-    while numberExists:
-        text = re.sub(numberRegex, "", text)
-        if re.search(numberRegex, text) is None:
-            numberExists = False
-
-    return text.strip()
-
-def getFirstNumber(text, *args, **kwargs):
-    result = getAllNumbers(text, *args, **kwargs)
-    if result is not None and len(result) > 0:
-        return result[0]
-    return None
 
 def strCheck(value):
     return value is not None and isinstance(value, str) and len(value) > 0
@@ -1159,7 +1002,6 @@ def chunksYielder(l, n):
         return []
     for i in range(0, len(l), n):
         yield l[i:i + n]
-
 
 def split(l, n):
     """

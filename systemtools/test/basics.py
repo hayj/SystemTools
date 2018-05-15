@@ -11,8 +11,8 @@ from systemtools import basics
 from systemtools.basics import *
 
 # The level allow the unit test execution to choose only the top level test
-mini = 0
-maxi = 5
+mini = 4
+maxi = 4
 assert mini <= maxi
 
 print("==============\nStarting unit tests...")
@@ -122,6 +122,47 @@ if mini <= 3 <= maxi:
             l = [1]
             result = split(l, 6)
             self.assertTrue(len(result) == 6)
+
+if mini <= 4 <= maxi:
+    class Test4(unittest.TestCase):
+        def test1(self):
+            o1 = \
+            {
+                "summary_detail": \
+                {
+                    "language": None,
+                    "test": 1,
+                },
+                "link": "http://...",
+            }
+
+            self.assertTrue(
+                getDictSubElement(o1, ["summary_detail", "language"]) == None)
+            self.assertTrue(
+                getDictSubElement(o1, ["summary_detail", "test"]) == 1)
+            self.assertTrue(
+                getDictSubElement(o1, ["summary_detail", "a"]) == None)
+            self.assertTrue(
+                getDictSubElement(o1, ["summary", "test"]) == None)
+            self.assertTrue(
+                getDictSubElement(o1, ["link", "test"]) == None)
+            self.assertTrue(
+                getDictSubElement(o1, ["link"]) == "http://...")
+
+            o1 = \
+            {
+                "summary_detail": \
+                {
+                    "language": {"test": 2},
+                    "test": 1,
+                },
+                "link": "http://...",
+            }
+            self.assertTrue(
+                getDictSubElement(o1, ["summary_detail", "language"]) == {"test": 2})
+            self.assertTrue(
+                getDictSubElement(o1, ["summary_detail", "language", "test"]) == 2)
+
 
 
 

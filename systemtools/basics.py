@@ -531,8 +531,27 @@ def sortByKey(theDict):
     """
     return OrderedDict(sorted(theDict.items()))
 
-
-
+def getDictSubElement(theDict, keys):
+    """
+        This function browse the dict as a tree and return the value in the path
+        defined by keys which is a list of dict keys. It return None if it doesn't
+        find anything.
+    """
+    if keys is None or theDict is None:
+        return None
+    if not isinstance(theDict, dict):
+        if len(keys) == 0:
+            return theDict
+        else:
+            return None
+    if len(keys) == 0:
+        return theDict
+    currentKey = keys[0]
+    nextKeys = keys[1:]
+    if currentKey in theDict:
+        return getDictSubElement(theDict[currentKey], nextKeys)
+    else:
+        return None
 
 def byteToStr(data):
     try:

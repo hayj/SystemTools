@@ -310,7 +310,7 @@ def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=True, logger=
     try:
         if text is not None:
             strToFile(text, path)
-        rc = subprocess.call(['7z', 'a', '-p' + key, '-y', path + ext, path])
+        rc = subprocess.call(['7z', 'a', '-p' + key, '-y', path + ext, path], stdout=open(os.devnull, 'wb'))
         if remove:
             removeFile(path)
         return True
@@ -327,7 +327,6 @@ def decryptFile(path, key, ext=".encrypted.zip", remove=True, logger=None, verbo
     """
     try:
         (dir, _, _, _) = decomposePath(path)
-        print(dir)
         key = str.encode(key)
         if path[-len(ext):] != ext:
             decryptedFilePath = path

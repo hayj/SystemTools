@@ -123,6 +123,9 @@ class Logger():
     def error(self, text):
         self.logger.error(self.prefixText(text))
 
+    def __repr__(self):
+        return str("Logger " + str(self.outputPath))
+
     def getLogger(self):
         return self.logger
 

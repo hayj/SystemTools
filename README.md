@@ -129,6 +129,7 @@ This module gathers some useful basics functions.
  * **varname(p)**: Return the name of p from the Python script.
  * **stripAllLines(text, removeBlank=True)**: Return the text but strip all lines.
  * **byteToStr(b)**: Convert bytes to str.
+ * **getDictSubElement(theDict, keys)**: This function browse the dict as a tree and return the value in the path defined by keys which is a list of dict keys. It return None if it doesn't find anything.
 
 ## systemtools.number
 

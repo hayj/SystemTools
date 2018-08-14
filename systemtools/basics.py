@@ -36,6 +36,27 @@ from tzlocal import get_localzone
 from dateutil import tz
 from dateutil.tz import tzlocal
 from systemtools.number import *
+from tabulate import tabulate
+
+
+def enumCast(text, theEnum, logger=None, verbose=True):
+    try:
+        if isinstance(text, Enum):
+            return text
+        else:
+            return theEnum[text]
+    except Exception as e:
+        if logger is not None:
+            logger.error(str(e), verbose=verbose)
+        return None
+
+def enumEquals(a, b):
+    if isinstance(a, str) or isinstance(b, str):
+        if isinstance(a, Enum):
+            a = a.name
+        if isinstance(b, Enum):
+            b = b.name
+    return a == b
 
 def stripAllLines(text, removeBlank=True):
     if text is None or not isinstance(text, str) or text == "":
@@ -50,10 +71,10 @@ def stripAllLines(text, removeBlank=True):
                 newText += current + "\n"
         return newText
 
-def timestampToDate(timestamp):
+def timestampToDate(timestamp, format='%Y-%m-%d %H:%M:%S'):
     return datetime.fromtimestamp(
         int(timestamp)
-    ).strftime('%Y-%m-%d %H:%M:%S')
+    ).strftime(format)
 
 def linearScore(x, x1=0.0, x2=1.0, y1=0.0, y2=1.0, stayBetween0And1=True):
     a = (y2 - y1) / (x2 - x1)
@@ -287,11 +308,21 @@ def getRandomName(addInt=True, maxInt=100):
         name = name + "-" + str(getRandomInt(0, maxInt))
     return name
 
-def getRandomEmail():
-    providers = ["yahoo.com"] * 3 + ["gmail.com", "yahoo.fr", "free.fr"]
+def getRandomEmail(name=None, lastname=None, providers=None):
+    if providers is None:
+        providers = ["yahoo.com", "gmail.com",
+                     "yahoo.fr", "free.fr",
+                     "outlook.com", "wanadoo.fr",
+                     "hotmail.com"]
+    if not isinstance(providers, list):
+        providers = [providers]
     provider = random.choice(providers)
-    name = stripAccents(getRandomName(addInt=False)).lower()
-    lastname = stripAccents(getRandomLastname(addInt=False)).lower()
+    if name is None:
+        name = stripAccents(getRandomName(addInt=False))
+    name = name.lower()
+    if lastname is None:
+        lastname = stripAccents(getRandomLastname(addInt=False))
+    lastname = lastname.lower()
     name = name + "." + lastname
     name += str(getRandomInt(100))
     if getRandomBool():
@@ -1039,11 +1070,45 @@ def split(l, n):
 #     return out
     return [l[i::n] for i in range(n)]
 
-if __name__ == '__main__':
 
-    for i in range(1000):
-        print(getRandomEmail())
-    exit()
+def objectAsKey(o):
+    """
+        :example:
+        >>> objectAsKey([1, {"c": {"a", 1, "t"}, "b": [2, 1], "a": "t"}, {}, [], None])
+        "[1, [[a, t], [b, [2, 1]], [c, [1, a, t]]], [], [], None]"
+    """
+    if isinstance(o, list):
+        newO = []
+        for current in o:
+            newO.append(objectAsKey(current))
+        result = "["
+        for current in newO:
+            result += str(current) + ", "
+        if len(o) > 0:
+            result = result[:-2]
+        result += "]"
+        return str(result)
+    elif isinstance(o, set):
+        newO = []
+        for current in o:
+            newO.append(str(current))
+        newO = sorted(newO)
+        return objectAsKey(newO)
+    elif isinstance(o, tuple):
+        o = list(o)
+        return objectAsKey(o)
+    elif isinstance(o, dict):
+        o = list(sortByKey(o).items())
+        return objectAsKey(o)
+    return str(o)
+
+if __name__ == '__main__':
+    o = [1, {"c": {"a", 1, "t"}, "b": [2, 1], "a": "t"}, {}, [], None]
+    print(objectAsKey(o))
+
+    # for i in range(1000):
+    #     print(getRandomEmail(name="jean", lastname="aaaaa", providers=None))
+    # exit()
 #     print(normalize([0.5, 0.5, 1.0, 2.0]))
 #     print(normalize([0.2, 0.2, 0.4, 0.2]))
 #     print(normalize([20, 20, 40, 20]))
@@ -1084,8 +1149,8 @@ if __name__ == '__main__':
 #     print(objectSize())
 #     test2()
 
-    l = list(range(100))
-    printLTS(chunksDeprecated(l, 6))
+    # l = list(range(100))
+    # printLTS(chunksDeprecated(l, 6))
 
 
 

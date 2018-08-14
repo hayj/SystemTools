@@ -89,7 +89,7 @@ class TicToc():
             diffTime = currentTime - self.previousTime;
             diffTime = float(float(int(diffTime * (10**self.maxDecimal))) / float((10**self.maxDecimal)));
             if display:
-                self.p(self.marker + " tic: " + self.secondsToHumanReadableDuration(diffTime) + msg); # time duration from the previous tic()
+                self.p(self.marker + " tic: " + secondsToHumanReadableDuration(diffTime) + msg); # time duration from the previous tic()
             self.previousTime = currentTime;
             return diffTime;
 
@@ -108,7 +108,7 @@ class TicToc():
             diffTime = currentTime - self.startTime;
             diffTime = float(float(int(diffTime * (10**self.maxDecimal))) / float((10**self.maxDecimal)));
             if display:
-                self.p(self.marker + " toc total duration: " + self.secondsToHumanReadableDuration(diffTime) + msg);
+                self.p(self.marker + " toc total duration: " + secondsToHumanReadableDuration(diffTime) + msg);
             return diffTime;
         return -1;
 
@@ -118,34 +118,34 @@ class TicToc():
         else:
             print(text)
 
-    def secondsToHumanReadableDuration(self, seconds):
-        """
-            :example:
-            >>> secondsToHumanReadableDuration(0.1)
-            '0.1s'
-            >>> secondsToHumanReadableDuration(10)
-            '10.0s'
-            >>> secondsToHumanReadableDuration(10.2)
-            '10.2s'
-            >>> secondsToHumanReadableDuration(3600)
-            '1h 0m 0.0s'
-            >>> secondsToHumanReadableDuration(7210)
-            '2h 0m 10.0s'
-            >>> secondsToHumanReadableDuration(7270)
-            '2h 1m 10.0s'
-        """
-        m, s = divmod(seconds, 60.0)
-        h, m = divmod(m, 60.0)
-        h = int(h)
-        m = int(m)
-        result = ""
-        if h != 0:
-            result += str(h) + "h "
-            result += str(m) + "m "
-        elif m != 0:
-            result += str(m) + "m "
-        result += floatAsReadable(s) + "s"
-        return result
+def secondsToHumanReadableDuration(seconds):
+    """
+        :example:
+        >>> secondsToHumanReadableDuration(0.1)
+        '0.1s'
+        >>> secondsToHumanReadableDuration(10)
+        '10.0s'
+        >>> secondsToHumanReadableDuration(10.2)
+        '10.2s'
+        >>> secondsToHumanReadableDuration(3600)
+        '1h 0m 0.0s'
+        >>> secondsToHumanReadableDuration(7210)
+        '2h 0m 10.0s'
+        >>> secondsToHumanReadableDuration(7270)
+        '2h 1m 10.0s'
+    """
+    m, s = divmod(seconds, 60.0)
+    h, m = divmod(m, 60.0)
+    h = int(h)
+    m = int(m)
+    result = ""
+    if h != 0:
+        result += str(h) + "h "
+        result += str(m) + "m "
+    elif m != 0:
+        result += str(m) + "m "
+    result += floatAsReadable(truncateFloat(s, 3)) + "s"
+    return result
 
 
 

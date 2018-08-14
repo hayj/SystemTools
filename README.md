@@ -129,7 +129,8 @@ This module gathers some useful basics functions.
  * **varname(p)**: Return the name of p from the Python script.
  * **stripAllLines(text, removeBlank=True)**: Return the text but strip all lines.
  * **byteToStr(b)**: Convert bytes to str.
- * **getDictSubElement(theDict, keys)**: This function browse the dict as a tree and return the value in the path defined by keys which is a list of dict keys. It return None if it doesn't find anything.
+ * **getDictSubElement(theDict, keys)**: This function browse the dict as a tree and return the value in the path defined by keys which is a list of dict keys. It return None if it doesn't find anything. Example: `getDictSubElement({'a': {'b': 1}}, ['a', 'b'])` return `1`.
+ * **objectAsKey(o)**: Convert any object to a key, if if instead call `str(o)` or `repr(o)`, the string can change  over executions of your script due to the unordered nature of dictionnaries and sets.
 
 ## systemtools.number
 

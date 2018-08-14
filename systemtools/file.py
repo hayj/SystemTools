@@ -301,7 +301,7 @@ def normalizeNumericalFilePaths(globRegex):
     return True
 
 
-def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=True, logger=None, verbose=True):
+def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=False, logger=None, verbose=True):
     """
         This function encrypt a file, if you give text in `text` parameter,
         the function will create the file.
@@ -321,7 +321,7 @@ def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=True, logger=
             else:
                 logger.error(str(e))
         return False
-def decryptFile(path, key, ext=".encrypted.zip", remove=True, logger=None, verbose=True):
+def decryptFile(path, key, ext=".encrypted.zip", remove=False, logger=None, verbose=True):
     """
         This function decrypt a file and return the text
     """

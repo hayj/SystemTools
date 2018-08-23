@@ -58,6 +58,9 @@ def deserialize(path):
     with open(path, 'rb') as handle:
         return pickle.load(handle)
 
+def copyFile(src, dst):
+    return shutil.copyfile(src, dst)
+
 def getAllNumbers(text):
     """
         This function is a copy of systemtools.basics.getAllNumbers

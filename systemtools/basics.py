@@ -39,6 +39,33 @@ from systemtools.number import *
 from tabulate import tabulate
 
 
+def strip(text):
+    if text is None or not isinstance(text, str):
+        return None
+    else:
+        return text.strip()
+
+def trim(*args, **kwargs):
+    return reduceBlank(*args, **kwargs)
+def trimAll(*args, **kwargs):
+    return reduceBlank(*args, **kwargs)
+def stripAll(*args, **kwargs):
+    return reduceBlank(*args, **kwargs)
+def reduceBlank(text, keepNewLines=False):
+    """
+        Strip a string and reduce all blank space to a unique space. If you set keepNewLines as True, it will keep a unique '\n' at each blank space which contains a '\n' or a '\r'
+    """
+    if text is None:
+        return None
+    text = text.strip()
+    if not keepNewLines:
+        return re.sub(r'\s+', ' ', text)
+    else:
+        text = re.sub(r'\r', '\n', text)
+        text = re.sub(r'\s*\n+\s*', '\n', text)
+        text = re.sub(r'[ \t\f\v]+', ' ', text)
+        return text
+
 def enumCast(text, theEnum, logger=None, verbose=True):
     try:
         if isinstance(text, Enum):
@@ -153,11 +180,6 @@ def intersection(lists):
                     theIntersection = list(set(current).intersection(theIntersection))
         return theIntersection
 
-def strip(text):
-    if text is None or not isinstance(text, str):
-        return None
-    else:
-        return text.strip()
 
 def lower(text):
     if text is None or not isinstance(text, str):
@@ -527,9 +549,6 @@ def normalize(theList):
 #         return [float(i) / max(theList) for i in theList]
 
 
-
-
-
 def crossValidationChunk(l, partsCount):
     chunkedSet = chunkList(l, partsCount)
     trainingSets = []
@@ -606,11 +625,6 @@ def strToHashCode2(str):
     return hashlib.md5(str).hexdigest()
 
 
-def trim(str):
-    pattern = re.compile(r'\s+')
-    str = re.sub(pattern, ' ', str)
-    str = str.strip();
-    return str
 
 
 def isDigit(str):
@@ -649,12 +663,27 @@ def isBooleanList(l):
             return False
     return True
 
-
-
-
-
 def listToStr2(obj, indent=4):
     return json.dumps(obj, indent=indent, sort_keys=True)
+
+def reducedLTS(o, amount=25, depth=0):
+    try:
+        if len(o) > amount:
+            tabs = ""
+            for i in range(depth):
+                tabs += "\t"
+            amount = int(amount / 2)
+            result = tabs + "[\n"
+            for current in o[:amount]:
+                result += tabs + "\t" + lts(current, depth=depth + 1) + ",\n"
+            result += tabs + "\t" + "..." + ",\n"
+            for current in o[-amount:]:
+                result += tabs + "\t" + lts(current, depth=depth + 1) + ",\n"
+            result = result[:-2]
+            result += tabs + "\n]"
+            return result
+    except: pass
+    return lts(o, depth=depth)
 
 def lts(*args, **kwargs):
     return listToStr(*args, **kwargs)
@@ -1053,6 +1082,15 @@ def chunksYielder(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
+def splitMaxSized(l, batchMaxSize):
+    """
+        Split a list in multiple parts in such a way that each part has a max size of batchMaxSize
+    """
+    batchCount = 1
+    if batchMaxSize is not None and batchMaxSize > 0:
+        batchCount = math.ceil(len(l) / batchMaxSize)
+    return split(l, batchCount)
+
 def split(l, n):
     """
         Split a list in n parts
@@ -1075,7 +1113,7 @@ def objectAsKey(o):
     """
         :example:
         >>> objectAsKey([1, {"c": {"a", 1, "t"}, "b": [2, 1], "a": "t"}, {}, [], None])
-        "[1, [[a, t], [b, [2, 1]], [c, [1, a, t]]], [], [], None]"
+        '[1, [[a, t], [b, [2, 1]], [c, [1, a, t]]], [], [], None]'
     """
     if isinstance(o, list):
         newO = []
@@ -1104,7 +1142,7 @@ def objectAsKey(o):
 
 if __name__ == '__main__':
     o = [1, {"c": {"a", 1, "t"}, "b": [2, 1], "a": "t"}, {}, [], None]
-    print(objectAsKey(o))
+    print(reducedLTS(o, 4))
 
     # for i in range(1000):
     #     print(getRandomEmail(name="jean", lastname="aaaaa", providers=None))

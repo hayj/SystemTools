@@ -131,6 +131,13 @@ This module gathers some useful basics functions.
  * **byteToStr(b)**: Convert bytes to str.
  * **getDictSubElement(theDict, keys)**: This function browse the dict as a tree and return the value in the path defined by keys which is a list of dict keys. It return None if it doesn't find anything. Example: `getDictSubElement({'a': {'b': 1}}, ['a', 'b'])` return `1`.
  * **objectAsKey(o)**: Convert any object to a key, if if instead call `str(o)` or `repr(o)`, the string can change  over executions of your script due to the unordered nature of dictionnaries and sets.
+ * **reducedLTS(o, amount=25)**: Same as `lts(o)` but keep only `amount` elements at the head and the tail of the object if it is a list.
+ * **splitMaxSized(l, batchMaxSize)**: Split a list in multiple parts in such a way that each part has a max size of batchMaxSize.
+ * **reduceBlank(text, keepNewLines=False) (aslias stripAll, trimAll)**: Strip a string and reduce all blank space to a unique space. If you set keepNewLines as True, it will keep a unique '\n' at each blank space which contains a '\n' or a '\r'.
+ * **linearScore(x, x1=0.0, x2=1.0, y1=0.0, y2=1.0, stayBetween0And1=True)**: Give you a score f(x) defined by the linear function line (x1, y1) (x2, y2).
+ * **camelCaseToUnderscoreCase(name)**: Convert a string which is formatted as the camelCase norm to the underscore_case norm.
+ * **camelCaseToUnderscoreCaseDict(theDict)**: Turn each key of the dict according to `camelCaseToUnderscoreCase`.
+ * **tuplesToDict(tupleList)**: Convert a list of tuples to a dict in such a way that the first element of each tuple will be the key.
 
 ## systemtools.number
 

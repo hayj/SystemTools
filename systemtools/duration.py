@@ -2,6 +2,7 @@
 
 import time;
 import re
+from systemtools.logger import *
 from systemtools.basics import *
 from threading import Thread
 
@@ -57,7 +58,8 @@ class TicToc():
     """
         This class provide 2 methods to print time during an execution
     """
-    def __init__(self, logger=None, marker="-->", msgSeparator=" | message: ", maxDecimal=2):
+    def __init__(self, verbose=True, logger=None, marker="-->", msgSeparator=" | message: ", maxDecimal=2):
+        self.verbose = verbose
         self.logger = logger
         self.startTime = None;
         self.previousTime = None;
@@ -113,10 +115,11 @@ class TicToc():
         return -1;
 
     def p(self, text):
-        if self.logger is not None:
-            self.logger.p(text)
-        else:
-            print(text)
+        log(text, self)
+        # if self.logger is not None:
+        #     self.logger.p(text)
+        # else:
+        #     print(text)
 
 def secondsToHumanReadableDuration(seconds):
     """

@@ -11,8 +11,8 @@ from systemtools import basics
 from systemtools.basics import *
 
 # The level allow the unit test execution to choose only the top level test
-mini = 4
-maxi = 4
+mini = 0
+maxi = 8
 assert mini <= maxi
 
 print("==============\nStarting unit tests...")
@@ -164,10 +164,64 @@ if mini <= 4 <= maxi:
                 getDictSubElement(o1, ["summary_detail", "language", "test"]) == 2)
 
 
+if mini <= 5 <= maxi:
+    class Test5(unittest.TestCase):
+        def test1(self):
+            t = "aa \n       uu.\roo\trr "
+            reducedT = reduceBlank(t, keepNewLines=False)
+            knlReducedT = reduceBlank(t, keepNewLines=True)
+            self.assertTrue(reducedT == "aa uu. oo rr")
+            self.assertTrue(knlReducedT == "aa\nuu.\noo rr")
+
+            t = "\n\n\naa.bb      oo\n"
+            reducedT = reduceBlank(t, keepNewLines=False)
+            knlReducedT = reduceBlank(t, keepNewLines=True)
+            self.assertTrue(reducedT == "aa.bb oo")
+            self.assertTrue(knlReducedT == "aa.bb oo")
+
+
+if mini <= 6 <= maxi:
+    class Test6(unittest.TestCase):
+        def test1(self):
+            l = list(range(10))
+            l = splitMaxSized(l, 5)
+            self.assertTrue(len(l) == 2)
+            self.assertTrue(len(l[0]) == 5)
+            self.assertTrue(len(l[1]) == 5)
+
+            l = list(range(9))
+            l = splitMaxSized(l, 5)
+            self.assertTrue(len(l) == 2)
+            self.assertTrue(len(l[0]) == 5)
+            self.assertTrue(len(l[1]) == 4)
+
+            l = list(range(11))
+            l = splitMaxSized(l, 5)
+            self.assertTrue(len(l) == 3)
+            self.assertTrue(len(l[0]) == 4)
+            self.assertTrue(len(l[1]) == 4)
+            self.assertTrue(len(l[2]) == 3)
+
+            l = list(range(1))
+            l = splitMaxSized(l, 5)
+            self.assertTrue(len(l) == 1)
+            self.assertTrue(len(l[0]) == 1)
+
+            l = list(range(11))
+            l = splitMaxSized(l, 0)
+            self.assertTrue(len(l) == 1)
+            self.assertTrue(len(l[0]) == 11)
+
+            l = list(range(11))
+            l = splitMaxSized(l, 1)
+            self.assertTrue(len(l) == 11)
+            self.assertTrue(len(l[0]) == 1)
+            self.assertTrue(len(l[1]) == 1)
+            self.assertTrue(len(l[2]) == 1)
 
 
 if __name__ == '__main__':
-    unittest.main() # Or execute as Python unit-test in eclipse
+    unittest.main() # Orb execute as Python unit-test in eclipse
 
 
 print("Unit tests done.\n==============")

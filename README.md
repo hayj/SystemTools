@@ -42,7 +42,7 @@ Both `tic` and `toc` methods return the time spent in seconds.
 
 ### ProgressBar
 
-A light alternative to [tqdm](https://github.com/tqdm/tqdm). Just wrap your iterables with the `pb` funct as [tqdm](https://github.com/tqdm/tqdm) do:
+A light alternative to [tqdm](https://github.com/tqdm/tqdm). Just wrap your iterables with the `pb` funct:
 
 ```python
 for i in pb(range(iterationAmount)):

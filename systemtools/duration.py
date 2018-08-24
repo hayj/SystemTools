@@ -328,11 +328,11 @@ def test3():
         time.sleep(0.1)
 
 def test4():
-    iterationAmount = 20
+    iterationAmount = 200
     pb = ProgressBar(iterationAmount)
     for i in range(iterationAmount):
+        time.sleep(0.01)
         pb.tic()
-        time.sleep(0.1)
 
 
 

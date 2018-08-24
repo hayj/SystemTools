@@ -42,24 +42,35 @@ Both `tic` and `toc` methods return the time spent in seconds.
 
 ### ProgressBar
 
-Give a iteration amount and call the `tic()` method at each iteration:
+Give an iteration amount and call the `tic()` method at each iteration:
 
-    iterationAmount = 20
+    iterationAmount = 200
     pb = ProgressBar(iterationAmount)
     for i in range(iterationAmount):
-        pb.tic()
         time.sleep(0.1)
+        pb.tic()
 
-This class will display this (according to paramater you choose, see the code fo more informations):
+This class will display this (according to parameters you choose, see the code for more information):
 
-	  5% [=                   ]
-	 20% [====                ] (1.199s left)
-	 40% [========            ] (1.049s left)
-	 60% [============        ] (0.733s left)
-	 80% [================    ] (0.375s left)
-	100% [====================] (total duration: 1.9s, mean duration: 0.095s)
+	  0% [                    ]
+	 20% [====                ] (1.6s left)
+	 40% [========            ] (1.214s left)
+	 60% [============        ] (0.813s left)
+	 80% [================    ] (0.404s left)
+	100% [====================] (total duration: 2.03s, mean duration: 0.01s)
 
 If you work on a terminal, it will automatically display informations more frenquently and replace the current line to do not spam the output.
+
+Init parameters are:
+
+ * **message**: will display this message at each `tic()`
+ * **printRatio**: display a message at each `printRatio * iterationAmount` times you call `tic()`. Default is 0.2.
+
+`tic()` parameters are:
+
+ * **extraMessage**: use this message if you want to display informations about the current iteration. 
+
+*Tested in Python 3 on Ubuntu.*
 
 ### Timer
 

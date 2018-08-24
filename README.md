@@ -60,7 +60,7 @@ This will display:
 
 By default, `pb` will **not** display more than 10 messages to do not display too much progress informations in the case you used the `nohup` command, or used a `Logger` for example.
 
-`pb` take the `ProgressBar` class init parameters. You can use the class directly to handle your progress bar by hand giving an iteration amount and by calling the `tic()` method at each iteration:
+`pb` take same parameters as the `ProgressBar` class init parameters. You can use the class directly to handle your progress bar by hand giving an iteration amount and by calling the `tic()` method at each iteration:
 
 ```python
 iterationAmount = 200

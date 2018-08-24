@@ -49,7 +49,7 @@ for i in pb(range(iterationAmount)):
     time.sleep(0.01)
 ```
 
-will display:
+This will display:
 
 	  0% [                    ]
 	 20% [====                ] (1.6s left)
@@ -58,7 +58,9 @@ will display:
 	 80% [================    ] (0.404s left)
 	100% [====================] (total duration: 2.03s, mean duration: 0.01s)
 
-You can also handle it by hand giving an iteration amount and by calling the `tic()` method at each iteration:
+By default, `pb` will **not** display more than 10 messages to do not display too much progress informations in the case you used the `nohup` command, or used a `Logger` for example.
+
+`pb` take the `ProgressBar` class init parameters. You can use the class directly to handle your progress bar by hand giving an iteration amount and by calling the `tic()` method at each iteration:
 
 ```python
 iterationAmount = 200
@@ -68,12 +70,12 @@ for i in range(iterationAmount):
     pb.tic()
 ```
 
-If you work on a terminal, it will automatically display informations more frenquently and replace the current line to do not spam the output.
+If you work on a terminal, it will automatically display informations more frenquently and replace the current line.
 
 Init parameters are ([see the code for more information](https://github.com/hayj/SystemTools/blob/master/systemtools/duration.py#L179)):
 
  * **message**: will display this message at each `tic()`
- * **printRatio**: display a message at each `printRatio * iterationAmount` times you call `tic()`. Default is 0.2.
+ * **printRatio**: display a message at each `printRatio * iterationAmount` times you call `tic()`. Default is 0.1, meaning it will display 10%, 20%...
 
 `tic()` parameters are:
 

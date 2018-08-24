@@ -50,7 +50,7 @@ Give an iteration amount and call the `tic()` method at each iteration:
         time.sleep(0.1)
         pb.tic()
 
-This class will display this (according to parameters you choose, see the code for more information):
+This class will display this (according to parameters you choose, (see the code for more information)[https://github.com/hayj/SystemTools/blob/master/systemtools/duration.py#L179]):
 
 	  0% [                    ]
 	 20% [====                ] (1.6s left)

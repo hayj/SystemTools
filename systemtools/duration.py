@@ -236,7 +236,7 @@ class ProgressBar:
         theModulo = int(self.printRatio * self.iterationAmount)
         if theModulo == 0:
             theModulo = 1
-        hasToDisplay =  self.currentIteration == 1 or self.currentIteration % theModulo == 0
+        hasToDisplay = self.currentIteration == 1 or self.currentIteration % theModulo == 0
         if hasToDisplay:
             text = ""
             if self.message is not None:

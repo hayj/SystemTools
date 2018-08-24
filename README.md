@@ -47,7 +47,7 @@ Give an iteration amount and call the `tic()` method at each iteration:
     iterationAmount = 200
     pb = ProgressBar(iterationAmount)
     for i in range(iterationAmount):
-        time.sleep(0.1)
+        time.sleep(0.01)
         pb.tic()
 
 This class will display this (according to parameters you choose, [see the code for more information](https://github.com/hayj/SystemTools/blob/master/systemtools/duration.py#L179)):

@@ -185,7 +185,7 @@ class ProgressBar:
         printRatio=None, # Auto
         logger=None,
         verbose=True,
-        defaultPrintRatio=0.2,
+        defaultPrintRatio=0.1,
         progressSymbol="=",
         progressSymbolAmount=20,
         printProgressBar=True,
@@ -302,6 +302,18 @@ class ProgressBar:
         return totalDuration
 
 
+def pb(items, iterationAmount=None, **kwargs):
+    if iterationAmount is None:
+        try:
+            iterationAmount = len(items)
+        except: pass
+    if iterationAmount is None:
+        raise Exception("Length of items not found.")
+    p = ProgressBar(iterationAmount, **kwargs)
+    for current in items:
+        yield current
+        p.tic()
+
 
 
 def test1():
@@ -334,10 +346,36 @@ def test4():
         time.sleep(0.01)
         pb.tic()
 
+from tqdm import tqdm
+
+def test5():
+    iterationAmount = 20000
+    # pb = ProgressBar(iterationAmount)
+    for i in tqdm(range(iterationAmount)):
+        time.sleep(0.01)
+        # pb.tic()
+
+def test6():
+    iterationAmount = 20000000
+    # pb = ProgressBar(iterationAmount)
+    for i in tqdm(range(iterationAmount)):
+        time.sleep(0.0001)
+        # pb.tic()
+
+def test8():
+    iterationAmount = 200
+    # pb = ProgressBar(iterationAmount)
+    for i in pb(range(iterationAmount)):
+        time.sleep(0.01)
+        # pb.tic()
+
 
 
 if __name__ == '__main__':
     # test1()
     # test2()
     # test3()
-    test4()
+    # test4()
+    # test5()
+    # test6()
+    test8()

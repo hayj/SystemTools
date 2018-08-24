@@ -42,7 +42,23 @@ Both `tic` and `toc` methods return the time spent in seconds.
 
 ### ProgressBar
 
-Give an iteration amount and call the `tic()` method at each iteration:
+A light alternative to [tqdm](https://github.com/tqdm/tqdm). Just wrap your iterables with the `pb` funct as [tqdm](https://github.com/tqdm/tqdm) do:
+
+```python
+for i in pb(range(iterationAmount)):
+    time.sleep(0.01)
+```
+
+will display:
+
+	  0% [                    ]
+	 20% [====                ] (1.6s left)
+	 40% [========            ] (1.214s left)
+	 60% [============        ] (0.813s left)
+	 80% [================    ] (0.404s left)
+	100% [====================] (total duration: 2.03s, mean duration: 0.01s)
+
+You can also handle it by hand giving an iteration amount and by calling the `tic()` method at each iteration:
 
 ```python
 iterationAmount = 200
@@ -52,18 +68,9 @@ for i in range(iterationAmount):
     pb.tic()
 ```
 
-This class will display this (according to parameters you choose, [see the code for more information](https://github.com/hayj/SystemTools/blob/master/systemtools/duration.py#L179)):
-
-	  0% [                    ]
-	 20% [====                ] (1.6s left)
-	 40% [========            ] (1.214s left)
-	 60% [============        ] (0.813s left)
-	 80% [================    ] (0.404s left)
-	100% [====================] (total duration: 2.03s, mean duration: 0.01s)
-
 If you work on a terminal, it will automatically display informations more frenquently and replace the current line to do not spam the output.
 
-Init parameters are:
+Init parameters are ([see the code for more information](https://github.com/hayj/SystemTools/blob/master/systemtools/duration.py#L179)):
 
  * **message**: will display this message at each `tic()`
  * **printRatio**: display a message at each `printRatio * iterationAmount` times you call `tic()`. Default is 0.2.

@@ -44,6 +44,7 @@ Both `tic` and `toc` methods return the time spent in seconds.
 
 Give an iteration amount and call the `tic()` method at each iteration:
 
+	python
     iterationAmount = 200
     pb = ProgressBar(iterationAmount)
     for i in range(iterationAmount):

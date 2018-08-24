@@ -346,28 +346,25 @@ def test4():
         time.sleep(0.01)
         pb.tic()
 
-from tqdm import tqdm
+# from tqdm import tqdm
 
-def test5():
-    iterationAmount = 20000
-    # pb = ProgressBar(iterationAmount)
-    for i in tqdm(range(iterationAmount)):
-        time.sleep(0.01)
-        # pb.tic()
+# def test5():
+#     iterationAmount = 20000
+#     # pb = ProgressBar(iterationAmount)
+#     for i in tqdm(range(iterationAmount)):
+#         time.sleep(0.01)
+#         # pb.tic()
 
-def test6():
-    iterationAmount = 20000000
-    # pb = ProgressBar(iterationAmount)
-    for i in tqdm(range(iterationAmount)):
-        time.sleep(0.0001)
-        # pb.tic()
+# def test6():
+#     iterationAmount = 20000000
+#     # pb = ProgressBar(iterationAmount)
+#     for i in tqdm(range(iterationAmount)):
+#         time.sleep(0.0001)
+#         # pb.tic()
 
 def test8():
-    iterationAmount = 200
-    # pb = ProgressBar(iterationAmount)
-    for i in pb(range(iterationAmount)):
+    for i in pb(range(200)):
         time.sleep(0.01)
-        # pb.tic()
 
 
 

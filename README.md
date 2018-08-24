@@ -25,16 +25,18 @@ This module provide some useful class to handle time.
 
 This class allow an easy print of computation time in your scripts:
 
-	>>> tt = TicToc()
-	>>> tt.tic() # Start the timer
-	>>> <do something...>
-	>>> tt.tic() # Print the time duration (human readable) since the previous tic()
-	tic: 1s
-	>>> <do something...>
-	>>> tt.tic()
-	tic: 1s
-	>>> tt.toc() # Print the total duration
-	toc total duration: 2s
+```python
+>>> tt = TicToc()
+>>> tt.tic() # Start the timer
+>>> <do something...>
+>>> tt.tic() # Print the time duration (human readable) since the previous tic()
+tic: 1s
+>>> <do something...>
+>>> tt.tic()
+tic: 1s
+>>> tt.toc() # Print the total duration
+toc total duration: 2s
+```
 
 You can give `msg` parameter to add a message to the printed duration. You can also choose to do not display anything using `display=False`.
 
@@ -78,8 +80,10 @@ Init parameters are:
 
 This class call a function each n seconds:
 
+```python
 	>>> timer = Timer(myFunct, 5)
 	>>> timer.start()
+```
 
 You can stop it using:
 

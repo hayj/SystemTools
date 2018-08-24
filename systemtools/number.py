@@ -289,4 +289,7 @@ def floatAsReadable(f):
     else:
         result = sign + intpart + b'.' + fractpart
 
-    return result.decode("utf-8")
+    result = result.decode("utf-8")
+    if result.startswith("."):
+        result = "0" + result
+    return result

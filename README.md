@@ -40,6 +40,27 @@ You can give `msg` parameter to add a message to the printed duration. You can a
 
 Both `tic` and `toc` methods return the time spent in seconds.
 
+### ProgressBar
+
+Give a iteration amount and call the `tic()` method at each iteration:
+
+    iterationAmount = 20
+    pb = ProgressBar(iterationAmount)
+    for i in range(iterationAmount):
+        pb.tic()
+        time.sleep(0.1)
+
+This class will display this (according to paramater you choose, see the code fo more informations):
+
+	  5% [=                   ]
+	 20% [====                ] (1.199s left)
+	 40% [========            ] (1.049s left)
+	 60% [============        ] (0.733s left)
+	 80% [================    ] (0.375s left)
+	100% [====================] (total duration: 1.9s, mean duration: 0.095s)
+
+If you work on a terminal, it will automatically display informations more frenquently and replace the current line to do not spam the output.
+
 ### Timer
 
 This class call a function each n seconds:
@@ -112,11 +133,12 @@ This module gathers some useful basics functions.
  * **stripAccents(text)**: Remove all accents of a string.
  * **printLTS(l)**: Pretty print a list or a dict. Use `listToStr` internally.
  * **listToStr(l)**: Convert a list or a dict to a pretty string.
- * **floatAsReadable**: Convert a float to a readble string without "e-X".
+ * **floatAsReadable**: Convert a float to a readable string without "e-X".
  * **sortByKey(d)**: Sort a dict by the key. Return an `OrderedDict`.
  * **sortBy(l, desc=False, index=1)**: Sort a list of tuple (or an itemized dict) by the specific index given in parameters.
  * **chunks(l, n)**: return a list of list (of len n) from `l`. You can also use `chunksYielder`.
  * **split(l, n)**: split a list in n parts.
+ * **splitMaxSized(l, batchMaxSize)**: Split a list in multiple parts in such a way that each part has a max size of batchMaxSize.
  * **normalize(l)**: Normalize (between 0.0 and 1.0) all elements of a list according to the sum of all elements.
  * **getRandomInt(a=None, b=None, seed=None, count=1)**: Return a random int between `a` and `b`.
  * **getRandomFloat(min=0.0, max=1.0, decimalMax=2)**: Return a random float between `min` and `max`.
@@ -132,12 +154,13 @@ This module gathers some useful basics functions.
  * **getDictSubElement(theDict, keys)**: This function browse the dict as a tree and return the value in the path defined by keys which is a list of dict keys. It return None if it doesn't find anything. Example: `getDictSubElement({'a': {'b': 1}}, ['a', 'b'])` return `1`.
  * **objectAsKey(o)**: Convert any object to a key, if if instead call `str(o)` or `repr(o)`, the string can change  over executions of your script due to the unordered nature of dictionnaries and sets.
  * **reducedLTS(o, amount=25)**: Same as `lts(o)` but keep only `amount` elements at the head and the tail of the object if it is a list.
- * **splitMaxSized(l, batchMaxSize)**: Split a list in multiple parts in such a way that each part has a max size of batchMaxSize.
  * **reduceBlank(text, keepNewLines=False) (aslias stripAll, trimAll)**: Strip a string and reduce all blank space to a unique space. If you set keepNewLines as True, it will keep a unique '\n' at each blank space which contains a '\n' or a '\r'.
  * **linearScore(x, x1=0.0, x2=1.0, y1=0.0, y2=1.0, stayBetween0And1=True)**: Give you a score f(x) defined by the linear function line (x1, y1) (x2, y2).
  * **camelCaseToUnderscoreCase(name)**: Convert a string which is formatted as the camelCase norm to the underscore_case norm.
  * **camelCaseToUnderscoreCaseDict(theDict)**: Turn each key of the dict according to `camelCaseToUnderscoreCase`.
  * **tuplesToDict(tupleList)**: Convert a list of tuples to a dict in such a way that the first element of each tuple will be the key.
+ * **findDuplicates(texts, strip=True)**: Return a list a duplicates (indexes of texts in th list).
+ * **intByteSize(n)**: Return the size of an integer in bytes.
 
 ## systemtools.number
 

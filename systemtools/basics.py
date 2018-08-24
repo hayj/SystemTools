@@ -37,6 +37,93 @@ from dateutil import tz
 from dateutil.tz import tzlocal
 from systemtools.number import *
 from tabulate import tabulate
+import itertools
+
+
+def intByteSize(n):
+    if n == 0:
+        return 1
+    return int(math.log(n, 256)) + 1
+
+
+
+
+# merge = \
+# {
+#     1: {2, 3, 4},
+#     2: {1, 3, 4},
+#     4: {1, 2, 3},
+#     3: {1, 2, 4},
+#     5: {6, 8},
+#     6: {5, 8},
+#     8: {6, 5},
+# }
+
+# print(recursiveFind(merge, [1, 6]))
+
+# exit()
+
+
+def mergeDuplicates(dups):
+    def recursiveFind(merge, l, alreadyVisited=set()):
+        all = set(l)
+        for current in l:
+            if current in merge and current not in alreadyVisited:
+                alreadyVisited.add(current)
+                all = all.union(recursiveFind(merge, merge[current], alreadyVisited))
+        return all
+    dups = list(itertools.chain(*dups))
+    prevousLen = -1
+    while prevousLen - len(dups) != 0:
+        prevousLen = len(dups)
+        merge = dict()
+        for dup in dups:
+            all = recursiveFind(merge, dup)
+            for a in all:
+                for b in all:
+                    if a not in merge:
+                        merge[a] = set()
+                    merge[a].add(b)
+        result = []
+        for current in merge.values():
+            if current not in result:
+                result.append(current)
+        dups = result
+    return dups
+
+def findDuplicates(texts, strip=True, useSets=True):
+    """
+        The returned structure looks like this:
+
+        [
+            {0, 1},
+            {2},
+            {3, 5},
+            {4}
+        ]
+    """
+    duplicates = dict() # {<text>: <duplicates ids set>}
+    i = 0
+    for text in texts:
+        if strip:
+            text = stripAll(text)
+        if text not in duplicates:
+            duplicates[text] = [i]
+        else:
+            duplicates[text].append(i)
+        i += 1
+    if useSets:
+        duplicatesResult = []
+        for text, currentDuplicates in duplicates.items():
+            if len(currentDuplicates) > 1:
+                duplicatesResult.append(set(currentDuplicates))
+        return duplicatesResult
+    else:
+        result = []
+        for current in duplicates.values():
+            if len(current) > 1:
+                result.append(current)
+        return result
 
 
 def strip(text):

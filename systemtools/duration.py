@@ -1,10 +1,16 @@
 # coding: utf-8
 
-import time;
+# pew in st-venv python /home/hayj/Workspace/Python/Utils/SystemTools/systemtools/duration.py
+
+import time
 import re
 from systemtools.logger import *
 from systemtools.basics import *
 from threading import Thread
+import os
+import sys
+from enum import Enum
+import signal
 
 
 class Timer:
@@ -154,3 +160,184 @@ def secondsToHumanReadableDuration(seconds):
 
 
 
+OUTPUT_TYPE = Enum("OUTPUT_TYPE", "standard subl nohup logger")
+def getOutputType(logger=None):
+    if logger is not None:
+        return OUTPUT_TYPE.logger
+    if signal.getsignal(signal.SIGHUP) == signal.SIG_DFL:
+        try:
+            size = os.get_terminal_size()
+        except:
+            return OUTPUT_TYPE.subl
+        return OUTPUT_TYPE.standard
+    else:
+        return OUTPUT_TYPE.nohup
+
+def canCleanOutput(*args, **kwargs):
+    return getOutputType(*args, **kwargs) == OUTPUT_TYPE.standard
+
+class ProgressBar:
+    def __init__\
+    (
+        self,
+        iterationAmount,
+        message=None,
+        printRatio=None, # Auto
+        logger=None,
+        verbose=True,
+        defaultPrintRatio=0.2,
+        progressSymbol="=",
+        progressSymbolAmount=20,
+        printProgressBar=True,
+        printFloatingPoint=None, # Auto
+    ):
+        self.printFloatingPoint = printFloatingPoint
+        self.progressSymbolAmount = progressSymbolAmount
+        self.printProgressBar = printProgressBar
+        self.progressSymbol = progressSymbol
+        self.iterationAmount = iterationAmount
+        self.message = message
+        self.printRatio = printRatio
+        self.logger = logger
+        self.verbose = verbose
+        self.outputType = getOutputType(logger=self.logger)
+        self.canCleanOutput = canCleanOutput(logger=self.logger)
+        if self.printRatio is None:
+            if self.outputType == OUTPUT_TYPE.standard:
+                self.printRatio = 0.0001
+            else:
+                self.printRatio = defaultPrintRatio
+        if self.printFloatingPoint is None:
+            if self.canCleanOutput or self.printRatio < 0.01:
+                self.printFloatingPoint = True
+            else:
+                self.printFloatingPoint = False
+        self.tt = TicToc(verbose=False)
+        self.tt.tic()
+        self.currentIteration = 0
+        self.durationHistory = []
+        if self.iterationAmount == 0:
+            self.toc()
+        if self.iterationAmount < 200:
+            self.printFloatingPoint = False
+
+    def tic(self, extraMessage=None, minRatioForRemainingMessage=0.1):
+        duration = self.tt.tic()
+        self.durationHistory.append(duration)
+        totalDuration = self.tt.toc()
+        self.currentIteration += 1
+        if self.iterationAmount == 0:
+            logWarning("The iterationAmount is 0.", self)
+            return duration
+        if self.currentIteration == self.iterationAmount:
+            self.toc()
+            return duration
+        doneRatio = self.currentIteration / self.iterationAmount
+        theModulo = int(self.printRatio * self.iterationAmount)
+        if theModulo == 0:
+            theModulo = 1
+        hasToDisplay =  self.currentIteration == 1 or self.currentIteration % theModulo == 0
+        if hasToDisplay:
+            text = ""
+            if self.message is not None:
+                text += self.message + " "
+            if not self.printFloatingPoint:
+                percent = math.floor(doneRatio * 100)
+                aSpace = ""
+                if percent < 10:
+                    aSpace = " "
+                percent = " " + aSpace + str(percent)
+            else:
+                percent = str(int(doneRatio * 100 * 100 + 100000))
+                percent = percent[2:]
+                if percent.startswith("0"):
+                    percent = " " + percent[1:]
+                percent = percent[:2] + "." + percent[2:]
+
+                # percent = str(int((truncateFloat(doneRatio * 100, self.floatingPointAmount) + 100000) * 100))
+                # percent = percent[1:]
+                # if len(percent) == 5:
+                #     percent = percent[:2] + "." + percent[2:]
+                # else:
+                #     percent = " " + percent[:1] + "." + percent[1:]
+            text += str(percent) + "%"
+            if self.printProgressBar:
+                nbSymbols = int(doneRatio * self.progressSymbolAmount)
+                symbols = self.progressSymbol * nbSymbols + " " * (self.progressSymbolAmount - nbSymbols)
+                text += " [" + symbols + "]"
+            if extraMessage is not None:
+                text += " " + str(extraMessage)
+            if doneRatio > minRatioForRemainingMessage:
+                remainingSecs = (totalDuration / doneRatio) - totalDuration
+                text += " (" + secondsToHumanReadableDuration(remainingSecs) + " left)"
+            if self.canCleanOutput:
+                print(text, end="\r")
+            else:
+                log(text, self)
+        return duration
+
+    def toc(self, extraMessage=None):
+        self.currentIteration = self.iterationAmount
+        meanDurationText = secondsToHumanReadableDuration(sum(self.durationHistory)/len(self.durationHistory))
+        totalDuration = self.tt.toc()
+        totalDurationText = secondsToHumanReadableDuration(totalDuration)
+        text = ""
+        if self.message is not None:
+            text += self.message + " "
+        if self.printFloatingPoint:
+            text += "  100%"
+        else:
+            text += "100%"
+        if self.printProgressBar:
+            symbols = self.progressSymbol * self.progressSymbolAmount
+            text += " [" + symbols + "]"
+        if extraMessage is not None:
+            text += " " + extraMessage
+        text += " (total duration: " + totalDurationText + ", mean duration: " + meanDurationText + ")"
+        if self.canCleanOutput:
+            print(text, end="\r")
+            print()
+        else:
+            log(text, self)
+        return totalDuration
+
+
+
+
+def test1():
+    iterationAmount = 30000
+    pb = ProgressBar(iterationAmount, "test", printRatio=0.0001)
+    for i in range(iterationAmount):
+        pb.tic(i)
+        time.sleep(0.00001)
+
+
+def test2():
+    iterationAmount = 20
+    pb = ProgressBar(iterationAmount, "test", printRatio=0.0001)
+    for i in range(iterationAmount):
+        pb.tic(i)
+        time.sleep(0.1)
+
+
+def test3():
+    iterationAmount = 20
+    pb = ProgressBar(iterationAmount, "test", printRatio=0.5)
+    for i in range(iterationAmount):
+        pb.tic(i)
+        time.sleep(0.1)
+
+def test4():
+    iterationAmount = 20
+    pb = ProgressBar(iterationAmount)
+    for i in range(iterationAmount):
+        pb.tic()
+        time.sleep(0.1)
+
+
+
+if __name__ == '__main__':
+    # test1()
+    # test2()
+    # test3()
+    test4()

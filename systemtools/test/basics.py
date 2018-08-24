@@ -11,8 +11,8 @@ from systemtools import basics
 from systemtools.basics import *
 
 # The level allow the unit test execution to choose only the top level test
-mini = 0
-maxi = 8
+mini = 8
+maxi = 9
 assert mini <= maxi
 
 print("==============\nStarting unit tests...")
@@ -218,6 +218,62 @@ if mini <= 6 <= maxi:
             self.assertTrue(len(l[0]) == 1)
             self.assertTrue(len(l[1]) == 1)
             self.assertTrue(len(l[2]) == 1)
+
+if mini <= 8 <= maxi:
+    class Test8(unittest.TestCase):
+        def test1(self):
+            l = ["a", "a", "b", "c", "ddd", "c "]
+            self.assertTrue(findDuplicates(l, strip=True) == [{0, 1}, {3, 5}])
+            self.assertTrue(findDuplicates(l, strip=False) == [{0, 1}])
+
+            l = ["a", "b", "c"]
+            self.assertTrue(findDuplicates(l, strip=True) == [])
+
+
+if mini <= 9 <= maxi:
+    class Test9(unittest.TestCase):
+        def test1(self):
+            def check(expected, got):
+                print("\n")
+                self.assertTrue(expected is not None)
+                self.assertTrue(got is not None)
+                print("Expected: " + str(expected))
+                print("Got:      " + str(got))
+                self.assertTrue(len(expected) == len(got))
+                for current in got:
+                    self.assertTrue(current in expected)
+                print("OK")
+                print("\n")
+
+            d1 = [{1, 2}, {3, 4}]
+            d2 = [{2, 4}, {5, 10}]
+            expected = [{1, 2, 3, 4}, {5, 10}]
+            got = mergeDuplicates([d1, d2])
+            check(expected, got)
+
+            d1 = [{1, 2}, {3, 4}, {5, 6}, {7, 8}, {16, 17}]
+            d2 = [{11, 12}, {13, 14}, {15, 16}, {10, 8, 11, 3}]
+            expected = [{1, 2}, {3, 4, 7, 8, 10, 11, 12}, {5, 6}, {13, 14}, {15, 16, 17}]
+            got = mergeDuplicates([d1, d2])
+            check(expected, got)
+
+            d1 = [{1, 2, 3}]
+            d2 = [{11, 12, 13}]
+            d3 = [{3, 11}]
+            d4 = [{15, 16}]
+            expected = [{1, 2, 3, 11, 12, 13}, {15, 16}]
+            got = mergeDuplicates([d1, d2, d3, d4])
+            check(expected, got)
+
+            d1 = [{1, 2, 3}]
+            d2 = [{11, 12, 13}]
+            d3 = [{3, 11}]
+            d4 = [{15, 16}]
+            expected = [{1, 2, 3, 11, 12, 13}, {15, 16}]
+            got = mergeDuplicates([d1, d2, d3, d4])
+            check(expected, got)
+
+
 
 
 if __name__ == '__main__':

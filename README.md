@@ -67,7 +67,7 @@ iterationAmount = 200
 pb = ProgressBar(iterationAmount)
 for i in range(iterationAmount):
     time.sleep(0.01)
-    pb.tic(i) # Give a message to the `tic` method to display onformations about the current iteration
+    pb.tic(i) # Give a message to the `tic` method to display informations about the current iteration
 ```
 
 If you work on a terminal, it will automatically display informations more frenquently and replace the current line.

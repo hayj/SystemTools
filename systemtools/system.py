@@ -61,10 +61,14 @@ def resetFunctionTimeout(*args, **kwargs):
 def resetCallTimeout():
     setCallTimeout(0)
 
+def ramAmount(*args, **kwargs):
+    return getRAMTotal(*args, **kwargs)
 def getRAMTotal():
+    """
+        Return a value in Go
+    """
     mem = virtual_memory()
     return int(mem.total / pow(1024, 3))
-
 
 def getProcCount(*args, **kwargs):
     return cpuCount(*args, **kwargs)

@@ -11,7 +11,8 @@ import os
 import sys
 from enum import Enum
 import signal
-
+from multiprocessing import Queue
+from threading import Thread
 
 class Timer:
     def __init__(self, callback, interval, *args, sleepFirst=False, sleepCount=1000, **kwargs):
@@ -190,7 +191,18 @@ class ProgressBar:
         progressSymbolAmount=20,
         printProgressBar=True,
         printFloatingPoint=None, # Auto
+        allowTerminalClean=True,
+        extraMessageOnTheLeft=True,
+        minIterationCountForRemainingMessage=100,
+        minDoneRatioForRemainingMessage=0.05,
     ):
+        self.queueThread = None
+        self.iterQueue = False
+        self.queue = None
+        self.minDoneRatioForRemainingMessage = minDoneRatioForRemainingMessage
+        self.minIterationCountForRemainingMessage = minIterationCountForRemainingMessage
+        self.extraMessageOnTheLeft = extraMessageOnTheLeft
+        self.allowTerminalClean = allowTerminalClean
         self.printFloatingPoint = printFloatingPoint
         self.progressSymbolAmount = progressSymbolAmount
         self.printProgressBar = printProgressBar
@@ -201,7 +213,10 @@ class ProgressBar:
         self.logger = logger
         self.verbose = verbose
         self.outputType = getOutputType(logger=self.logger)
-        self.canCleanOutput = canCleanOutput(logger=self.logger)
+        if not self.allowTerminalClean:
+            self.canCleanOutput = False
+        else:
+            self.canCleanOutput = canCleanOutput(logger=self.logger)
         if self.printRatio is None:
             if self.outputType == OUTPUT_TYPE.standard:
                 self.printRatio = 0.0001
@@ -215,24 +230,25 @@ class ProgressBar:
         self.tt = TicToc(verbose=False)
         self.tt.tic()
         self.currentIteration = 0
-        self.durationHistory = []
         if self.iterationAmount == 0:
             self.toc()
         if self.iterationAmount < 200:
             self.printFloatingPoint = False
 
-    def tic(self, extraMessage=None, minRatioForRemainingMessage=0.1):
+    def tic(self, extraMessage=None, amount=1):
         duration = self.tt.tic()
-        self.durationHistory.append(duration)
         totalDuration = self.tt.toc()
-        self.currentIteration += 1
+        self.currentIteration += amount
         if self.iterationAmount == 0:
             logWarning("The iterationAmount is 0.", self)
             return duration
         if self.currentIteration == self.iterationAmount:
-            self.toc()
+            self.toc(extraMessage=extraMessage)
             return duration
-        doneRatio = self.currentIteration / self.iterationAmount
+        if self.iterationAmount == 0:
+            doneRatio = 1.0
+        else:
+            doneRatio = self.currentIteration / self.iterationAmount
         theModulo = int(self.printRatio * self.iterationAmount)
         if theModulo == 0:
             theModulo = 1
@@ -265,11 +281,15 @@ class ProgressBar:
                 nbSymbols = int(doneRatio * self.progressSymbolAmount)
                 symbols = self.progressSymbol * nbSymbols + " " * (self.progressSymbolAmount - nbSymbols)
                 text += " [" + symbols + "]"
-            if extraMessage is not None:
-                text += " " + str(extraMessage)
-            if doneRatio > minRatioForRemainingMessage:
+            if self.extraMessageOnTheLeft:
+                if extraMessage is not None:
+                    text += " " + str(extraMessage)
+            if self.currentIteration >= self.minIterationCountForRemainingMessage or doneRatio >= self.minDoneRatioForRemainingMessage:
                 remainingSecs = (totalDuration / doneRatio) - totalDuration
                 text += " (" + secondsToHumanReadableDuration(remainingSecs) + " left)"
+            if not self.extraMessageOnTheLeft:
+                if extraMessage is not None:
+                    text += " " + str(extraMessage)
             if self.canCleanOutput:
                 print(text, end="\r")
             else:
@@ -278,8 +298,11 @@ class ProgressBar:
 
     def toc(self, extraMessage=None):
         self.currentIteration = self.iterationAmount
-        meanDurationText = secondsToHumanReadableDuration(sum(self.durationHistory)/len(self.durationHistory))
         totalDuration = self.tt.toc()
+        iterationAmountForDivision = 1
+        if self.iterationAmount != 0:
+            iterationAmountForDivision = self.iterationAmount
+        meanDurationText = secondsToHumanReadableDuration(totalDuration / iterationAmountForDivision)
         totalDurationText = secondsToHumanReadableDuration(totalDuration)
         text = ""
         if self.message is not None:
@@ -292,7 +315,7 @@ class ProgressBar:
             symbols = self.progressSymbol * self.progressSymbolAmount
             text += " [" + symbols + "]"
         if extraMessage is not None:
-            text += " " + extraMessage
+            text += " " + str(extraMessage)
         text += " (total duration: " + totalDurationText + ", mean duration: " + meanDurationText + ")"
         if self.canCleanOutput:
             print(text, end="\r")
@@ -300,6 +323,35 @@ class ProgressBar:
         else:
             log(text, self)
         return totalDuration
+
+    def __queueRun(self):
+        while self.iterQueue:
+            try:
+                self.queue.get(timeout=0.5)
+                self.tic()
+            except:
+                pass
+
+    def getQueue(self):
+        return self.queue
+
+    def startQueue(self):
+        """
+            This function will start a Thread which will look in the dedicated
+            queue. Use the returned queue to put None and this Thread will tic()
+            the pbar for you. Works in multiprocessing.
+            See systemtools.test.queuetest for full example.
+        """
+        self.iterQueue = True
+        self.queue = Queue()
+        self.queueThread = Thread(target=self.__queueRun)
+        self.queueThread.start()
+        return self.queue
+
+    def stopQueue(self):
+
+        self.iterQueue = False
+
 
 
 def pb(items, iterationAmount=None, **kwargs):
@@ -313,6 +365,7 @@ def pb(items, iterationAmount=None, **kwargs):
     for current in items:
         yield current
         p.tic()
+
 
 
 
@@ -369,10 +422,10 @@ def test8():
 
 
 if __name__ == '__main__':
-    # test1()
-    # test2()
-    # test3()
-    # test4()
+    test1()
+    test2()
+    test3()
+    test4()
     # test5()
     # test6()
     test8()

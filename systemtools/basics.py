@@ -40,12 +40,11 @@ from tabulate import tabulate
 import itertools
 
 
+
 def intByteSize(n):
     if n == 0:
         return 1
     return int(math.log(n, 256)) + 1
-
-
 
 
 # merge = \
@@ -211,9 +210,12 @@ def camelCaseToUnderscoreCaseDict(theDict):
         newDict[key] = value
     return newDict
 
-def reduceDictStr(theDict, max=40, replaceNewLine=False, reduceLists=False, maxElementCountInLists=1):
+
+def reduceDictStr(theDict, max=60, replaceNewLine=False, reduceLists=True, maxElementCountInLists=None):
     if reduceLists and isinstance(theDict, list):
-        values = theDict[:maxElementCountInLists]
+        values = theDict
+        if maxElementCountInLists is not None:
+            values = values[:maxElementCountInLists]
         newValues = []
         for current in values:
             current = reduceDictStr(current,
@@ -653,6 +655,8 @@ def crossValidationChunk(l, partsCount):
     return (trainingSets, testSets)
 
 
+def sortByValue(theDict, desc=False):
+    return sortBy(theDict, desc=desc, index=1)
 def sortBy(theDict, desc=False, index=1):
     """
         return a sorted tuple, even if it's a python dict
@@ -690,6 +694,8 @@ def getDictSubElement(theDict, keys):
     else:
         return None
 
+def bytesToStr(*args, **kwargs):
+    return byteToStr(*args, **kwargs)
 def byteToStr(data):
     try:
         data = data.decode("utf-8")
@@ -774,7 +780,7 @@ def reducedLTS(o, amount=25, depth=0):
 
 def lts(*args, **kwargs):
     return listToStr(*args, **kwargs)
-def listToStr(l, depth=0):
+def listToStr(l, depth=0, addQuotes=False):
     tabs = ""
     for i in range(depth):
         tabs += "\t"
@@ -787,16 +793,19 @@ def listToStr(l, depth=0):
                 result += ", "
         result += "]"
         return result
-    if isinstance(l, dict):
+    if isinstance(l, dict) or "items" in dir(l):
         result = ""
         result += "{"
+        quoteToAdd = ""
+        if addQuotes:
+            quoteToAdd = '"'
         i = 0
         for key, value in list(l.items()):
             result += "\n"
-            result += tabs + "\t" + str(key) + ": "
+            result += tabs + "\t" + quoteToAdd + str(key) + quoteToAdd + ": "
             if (isinstance(value, list) or isinstance(value, dict)) and not isNumberOrBoolList(value):
                 result += "\n" + tabs + "\t"
-            result += listToStr(value, depth + 1)
+            result += listToStr(value, depth + 1, addQuotes=addQuotes)
             if (i + 1) < len(l):
                 result += ','
             i += 1
@@ -808,7 +817,7 @@ def listToStr(l, depth=0):
         i = 0
         for el in l:
             result += "\n"
-            result += tabs + "\t" + listToStr(el, depth + 1)
+            result += tabs + "\t" + listToStr(el, depth + 1, addQuotes=addQuotes)
             if (i + 1) < len(l):
                 result += ','
             i += 1
@@ -1012,7 +1021,11 @@ def mergeDicts(*dict_args):
             result = {**result, **dictionary}
     return result
 
+def isFrenchDate(s):
+    return re.match("^[0-3]\d/[0-1]\d/[1-2]\d{3}$", s) is not None
+
 DATE_FORMAT = Enum("DATE_FORMAT", "datetimeString datetime timestamp arrow arrowString humanize")
+
 def convertDate(readableDate=None, dateFormat=DATE_FORMAT.datetime):
     """
         Warning : utc shift may appear...
@@ -1029,9 +1042,17 @@ def convertDate(readableDate=None, dateFormat=DATE_FORMAT.datetime):
 #         print('isFloat(readableDate)')
         theDate = datetime.fromtimestamp(float(readableDate))
     elif isDateStr(readableDate):
+        if isFrenchDate(readableDate):
+            s = readableDate.split("/")
+            s = s[2] + "/" + s[1] + "/" + s[0]
+            readableDate = s
 #         print('isDateStr(readableDate)')
         theDate = arrow.get(readableDate).datetime
     elif isinstance(readableDate, str):
+        if isFrenchDate(readableDate):
+            s = readableDate.split("/")
+            s = s[2] + "/" + s[1] + "/" + s[0]
+            readableDate = s
 #         print('isinstance(readableDate, str)')
         cal = parsedatetime.Calendar()
 #         local_tz = get_localzone()
@@ -1061,7 +1082,11 @@ def convertDate(readableDate=None, dateFormat=DATE_FORMAT.datetime):
         return None
 
 
-
+def weAreBefore(readableDate):
+    d = convertDate(readableDate, dateFormat=DATE_FORMAT.timestamp)
+    return time.time() < d
+def weAreAfter(*args, **kwargs):
+    return not weAreBefore(*args, **kwargs)
 
 def listSubstract(a, b):
     if a is None:
@@ -1195,7 +1220,10 @@ def split(l, n):
 #     return out
     return [l[i::n] for i in range(n)]
 
-
+def dictHash(*args, **kwargs):
+    return objectAsKey(*args, **kwargs)
+def objectHash(*args, **kwargs):
+    return objectAsKey(*args, **kwargs)
 def objectAsKey(o):
     """
         :example:

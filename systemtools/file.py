@@ -10,6 +10,7 @@ import string
 from systemtools.location import isFile, getDir, isDir, sortedGlob, decomposePath, tmpDir, homeDir
 from systemtools.basics import getRandomStr
 import subprocess, zipfile
+from distutils.dir_util import copy_tree
 
 
 class TIMESPENT_UNIT(Enum):
@@ -57,6 +58,20 @@ def serialize(obj, path):
 def deserialize(path):
     with open(path, 'rb') as handle:
         return pickle.load(handle)
+
+def copyDir(src, dst):
+    if not (src.startswith("/") and src.startswith("/")):
+        raise Exception("Pls give absolute path.")
+    if src.count("/") < 2 or dst.count("/") < 2:
+        raise Exception("Pls give a deep folder (by security).")
+    (dir, filename, ext, filenameExt) = decomposePath(src)
+    if dir[-1] != "/":
+        dir += "/"
+    dir = dir + filenameExt
+    if dir != src or not isDir(dir):
+        raise Exception("Pls give a right dir path.")
+    dirName = dir.split("/")[-1]
+    return copy_tree(src, dst + "/" + dirName)
 
 def copyFile(src, dst):
     return shutil.copyfile(src, dst)
@@ -133,11 +148,11 @@ def removeFiles(path):
 def removeAll(path):
     removeFile(path)
 
-def fileToStr(path, split=False):
+def fileToStr(path, split=False, encoding=None):
     if split:
         return fileToStrList(path)
     else:
-        with open(path, 'r') as myfile:
+        with open(path, 'r', encoding=encoding) as myfile:
             data = myfile.read()
         return data
 
@@ -200,11 +215,16 @@ def removeIfExistsSecure(path, slashCount=5):
     if path.count('/') >= slashCount:
         removeIfExists(path)
 
+def removeDir(*args, **kwargs):
+    return removeTreeIfExists(*args, **kwargs)
 def removeTreeIfExists(path):
-    shutil.rmtree(path, True)
+    return shutil.rmtree(path, True)
+def removeDirSecure(*args, **kwargs):
+    return removeTreeIfExistsSecure(*args, **kwargs)
 def removeTreeIfExistsSecure(path, slashCount=5):
     if path.count('/') >= slashCount:
-        removeTreeIfExists(path)
+        return removeTreeIfExists(path)
+    return None
 
 def strListToTmpFile(theList, *args, **kwargs):
     text = ""

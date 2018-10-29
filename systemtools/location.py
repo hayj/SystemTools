@@ -44,6 +44,39 @@ def decomposePath(path):
         filename, ext = ext, filename
     return (dir, filename, ext, filenameExt)
 
+def decomposePath2(path):
+    """
+        :example:
+        >>> decomposePath(None)
+        >>> decomposePath("")
+        >>> decomposePath(1)
+        >>> decomposePath("truc")
+        ('', 'truc', '', 'truc')
+        >>> decomposePath("truc.txt")
+        ('', 'truc', 'txt', 'truc.txt')
+        >>> decomposePath("/home/truc.txt")
+        ('/home/', 'truc', 'txt', 'truc.txt')
+        >>> decomposePath("/home/truc.txt.bz2")
+        ('/home/', 'truc.txt', 'bz2', 'truc.txt.bz2')
+        >>> decomposePath("/truc.txt.bz2")
+        ('/', 'truc.txt', 'bz2', 'truc.txt.bz2')
+        >>> decomposePath("./truc.txt.bz2")
+        ('./', 'truc.txt', 'bz2', 'truc.txt.bz2')
+        >>> decomposePath(".truc.txt.bz2")
+        ('', '.truc.txt', 'bz2', '.truc.txt.bz2')
+    """
+    if path is None or type(path) is not str or len(path) == 0:
+        return None
+    filenameExt = path.split("/")[-1]
+    dir = path[0:-len(filenameExt)]
+    if len(dir) > 1 and dir[-1] == "/":
+        dir = dir[:-1]
+    filename = ".".join(filenameExt.split(".")[0:-1])
+    ext = filenameExt.split(".")[-1]
+    if len(filename) == 0 and len(ext) > 0:
+        filename, ext = ext, filename
+    return (dir, filename, ext, filenameExt)
+
 def enhanceDir(path):
     if path[-1] != '/':
         path += '/'
@@ -75,6 +108,8 @@ def isDir(dirPath):
 def getDir(filePath):
     return os.path.dirname(os.path.abspath(filePath))
 
+def parentDir(*args, **kwargs):
+    return getParentDir(*args, **kwargs)
 def getParentDir(path, depth=1):
     for i in range(depth):
         path = os.path.abspath(os.path.join(path, os.pardir))
@@ -249,11 +284,10 @@ def dataDir(*args, **kwargs):
 def dataPath(defaultDirName="Data"):
     def isHostname(hostname):
         return socket.gethostname().startswith(hostname)
-    if isHostname("tipi"):
+    if isHostname("tipi") or isHostname("renewal"):
+        # return "/users/modhel-nosave/hayj/" + defaultDirName
         return "/users/modhel-nosave/hayj/" + defaultDirName
     return homeDir() + "/" + defaultDirName
-
-
 
 def sortedWalk():
     pass # TODO

@@ -266,7 +266,7 @@ def sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=Fals
     elif sortBy == GlobSortEnum.NUMERICAL_NAME:
         paths.sort(key=getFileNum, reverse=reverse)
 
-    return paths
+    return list(paths)
 
 
 def homePath(*args, **kwargs):

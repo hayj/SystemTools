@@ -780,10 +780,12 @@ def reducedLTS(o, amount=25, depth=0):
 
 def lts(*args, **kwargs):
     return listToStr(*args, **kwargs)
-def listToStr(l, depth=0, addQuotes=False):
+def listToStr(l, depth=0, addQuotes=False, maxDepth=None, unknownObjectsToType=False):
     tabs = ""
     for i in range(depth):
         tabs += "\t"
+    if maxDepth is not None and depth >= maxDepth:
+        return tabs + "Depth exceeded"
     if isinstance(l, list) and (isNumberOrBoolList(l)):
         result = "["
         for i in range(len(l)):
@@ -794,6 +796,8 @@ def listToStr(l, depth=0, addQuotes=False):
         result += "]"
         return result
     if isinstance(l, dict) or "items" in dir(l):
+        if unknownObjectsToType and not isinstance(l, dict):
+            return tabs + str(type(l))
         result = ""
         result += "{"
         quoteToAdd = ""
@@ -805,7 +809,7 @@ def listToStr(l, depth=0, addQuotes=False):
             result += tabs + "\t" + quoteToAdd + str(key) + quoteToAdd + ": "
             if (isinstance(value, list) or isinstance(value, dict)) and not isNumberOrBoolList(value):
                 result += "\n" + tabs + "\t"
-            result += listToStr(value, depth + 1, addQuotes=addQuotes)
+            result += listToStr(value, depth + 1, addQuotes=addQuotes, unknownObjectsToType=unknownObjectsToType, maxDepth=maxDepth)
             if (i + 1) < len(l):
                 result += ','
             i += 1
@@ -817,7 +821,7 @@ def listToStr(l, depth=0, addQuotes=False):
         i = 0
         for el in l:
             result += "\n"
-            result += tabs + "\t" + listToStr(el, depth + 1, addQuotes=addQuotes)
+            result += tabs + "\t" + listToStr(el, depth + 1, addQuotes=addQuotes, unknownObjectsToType=unknownObjectsToType, maxDepth=maxDepth)
             if (i + 1) < len(l):
                 result += ','
             i += 1
@@ -827,7 +831,10 @@ def listToStr(l, depth=0, addQuotes=False):
         if isinstance(l, str):
             return '"' + l + '"'
         else:
-            return str(l)
+            if unknownObjectsToType:
+                return str(type(l))
+            else:
+                return str(l)
 
 def printLTS(l, *args, loggerFunct=None, **kwargs):
     result = listToStr(l, *args, **kwargs)
@@ -1153,7 +1160,7 @@ def testPartList():
 
 
 def chunkList(l, partsCount):
-    print("DEPRECATED, use chunksDeprecated instead!")
+    print("DEPRECATED, use chunks instead!")
     chunkedList = []
     partsItemNumber = int(math.ceil(float(len(l)) / float(partsCount)))
     for i in range(partsCount):
@@ -1167,7 +1174,7 @@ def partListDeprecated(*args, **kwargs):
 def chunksDeprecated(*args, **kwargs):
     return list(chunksYielderDepprecated(*args, **kwargs))
 def chunksYielderDepprecated(l, n):
-    """Yield successive n-sized chunksDeprecated from l."""
+    """Yield successive n-sized chunks from l."""
     if l is None:
         yield None
     elif len(l) <= 1:
@@ -1188,7 +1195,7 @@ def chunk(*args, **kwargs):
 def chunks(*args, **kwargs):
     return list(chunksYielder(*args, **kwargs))
 def chunksYielder(l, n):
-    """Yield successive n-sized chunksDeprecated from l."""
+    """Yield successive n-sized chunks from l."""
     if l is None:
         return []
     for i in range(0, len(l), n):

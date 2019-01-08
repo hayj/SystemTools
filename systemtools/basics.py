@@ -765,6 +765,7 @@ def reducedLTS(o, amount=25, depth=0):
             tabs = ""
             for i in range(depth):
                 tabs += "\t"
+            startTabs = tabs[:-1]
             amount = int(amount / 2)
             result = tabs + "[\n"
             for current in o[:amount]:
@@ -773,10 +774,10 @@ def reducedLTS(o, amount=25, depth=0):
             for current in o[-amount:]:
                 result += tabs + "\t" + lts(current, depth=depth + 1) + ",\n"
             result = result[:-2]
-            result += tabs + "\n]"
+            result += "\n" + tabs + "]"
             return result
     except: pass
-    return lts(o, depth=depth)
+    return "\t" * depth + lts(o, depth=depth)
 
 def lts(*args, **kwargs):
     return listToStr(*args, **kwargs)

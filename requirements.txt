@@ -6,3 +6,5 @@ tzlocal
 sh
 pathlib
 tabulate
+requests
+xtract

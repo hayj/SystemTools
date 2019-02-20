@@ -11,6 +11,8 @@ from systemtools.location import isFile, getDir, isDir, sortedGlob, decomposePat
 from systemtools.basics import getRandomStr
 import subprocess, zipfile
 from distutils.dir_util import copy_tree
+import requests
+import xtract
 
 
 class TIMESPENT_UNIT(Enum):
@@ -344,6 +346,7 @@ def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=False, logger
             else:
                 logger.error(str(e))
         return False
+
 def decryptFile(path, key, ext=".encrypted.zip", remove=False, logger=None, verbose=True):
     """
         This function decrypt a file and return the text
@@ -369,7 +372,72 @@ def decryptFile(path, key, ext=".encrypted.zip", remove=False, logger=None, verb
                 logger.error(str(e))
         return None
 
+def download(url, dirPath=None, skipIfExists=False):
+    """
+        Based on https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py/39217788
+    """
+    if dirPath is None:
+        dirPath = tmpDir("downloads")
+    fileName = strToFilename(url.split('/')[-1])
+    filePath = dirPath + "/" + fileName
+    if skipIfExists and isFile(filePath):
+        return filePath
+    else:
+        r = requests.get(url, stream=True)
+        with open(filePath, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024): 
+                if chunk:
+                    f.write(chunk)
+        return filePath
+
+def extract(filePath, destinationDir=None, upIfUnique=True, doDoubleExtract=True):
+    if not isFile(filePath):
+        print(filePath + " does not exist")
+        return None
+    # We get the dir of the file to extract:
+    (dirPath, _, _, filenameExt) = decomposePath(filePath)
+    # We extract it:
+    extractedDirPath = xtract.xtract(filePath)
+    # Here we check if the file end with ".tar":
+    if doDoubleExtract and extractedDirPath[-4:] == ".tar":
+        # So we re-extract it:
+        previousPath = extractedDirPath
+        extractedDirPath = xtract.xtract(extractedDirPath)
+        # We remove the previous element:
+        if isDir(previousPath):
+            removeDirSecure(previousPath, slashCount=4)
+        elif isFile(previousPath):
+            removeIfExistsSecure(previousPath, slashCount=4)
+    # If there is only one folder or file under extractedDirPath, we up it:
+    if upIfUnique and len(sortedGlob(extractedDirPath + "/*")) == 1:
+        # We get the element path:
+        elementPath = sortedGlob(extractedDirPath + "/*")[0]
+        # We make the dst path:
+        dst = dirPath + "/" + elementPath.split("/")[-1]
+        # First we check if the element exists inthe parent dir:
+        if isFile(dst) or isDir(dst):
+            dst += time.strftime("-%Y.%m.%d-%H.%M.%S")
+        # then we move it:
+        shutil.move(elementPath, dst)
+        # And finally we remove the dir:
+        removeDirSecure(extractedDirPath, slashCount=4)
+        # We update extractedDirPath:
+        extractedDirPath = dst
+    # We move the element:
+    if destinationDir is not None:
+        # We move it:
+        newDestFilePath = destinationDir + "/" + decomposePath(extractedDirPath)[3]
+        shutil.move(extractedDirPath, newDestFilePath)
+        # We update extractedDirPath:
+        extractedDirPath = newDestFilePath
+    # Finally we return the new path:
+    return extractedDirPath
+
+
 if __name__ == '__main__':
+    # print(download("http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"))
+    # extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz")
+    print(extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz", tmpDir("aaa")))
 #     normalizeNumericalFilePaths("/home/hayj/test/test1/*.txt")
 #     normalizeNumericalFilePaths("/users/modhel/hayj/NoSave/Data/TwitterArchiveOrg/Converted/*.bz2")
 #     strToTmpFile("hoho", subDir="test", ext="txt")

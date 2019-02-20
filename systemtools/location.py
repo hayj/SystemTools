@@ -215,7 +215,7 @@ def sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=Fals
             set it as False if you don't want to take care of the case
         sortBy : enum item
             can be GlobSortEnum.<MTIME|NAME|SIZE|NUMERICAL_NAME>,
-            the last one is the same as name but take into account numbers
+            the last one is the same as name but take into account the last number in the given path numbers
             (e.g. test1.txt < test10.txt)
         reverse : boolean
             set it as True if you want to reverse the order
@@ -235,10 +235,10 @@ def sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=Fals
         """
         if fileName is None or len(fileName) == 0:
             return None
-        result = re.search("([0-9]+)", fileName)
+        result = re.findall("([0-9]+)", fileName)
         if result is not None:
             try:
-                theInt = result.group(1)
+                theInt = result[-1]
                 return int(theInt)
             except IndexError as e:
                 return None

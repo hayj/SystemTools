@@ -63,6 +63,18 @@ def intByteSize(n):
 # exit()
 
 
+def dictSelect(theDict, keys):
+    """
+        This function take a dict and return a new dict with only slectionned keys
+    """
+    return dict((k, theDict[k]) for k in keys)
+
+def flattenLists(lists):
+    """
+        This function takes sentences and return the concatenation of them
+    """
+    return list(itertools.chain.from_iterable(lists))
+
 def mergeDuplicates(dups):
     def recursiveFind(merge, l, alreadyVisited=set()):
         all = set(l)
@@ -470,6 +482,9 @@ def getRandomFloat(min=0.0, max=1.0, decimalMax=2):
 
 
 class Random:
+    """
+        This class is useful to use random functions but consistent over executions.
+    """
     def __init__(self):
         self.nextSeed = None
 
@@ -480,6 +495,11 @@ class Random:
     def resetSeed(self):
         random.seed(self.nextSeed)
         self.nextSeed = None
+
+    def doSeededShuffle(self, l, seed=0):
+        self.setSeed(seed)
+        random.shuffle(l)
+        self.resetSeed()
 
     def getRandomInt(self, number1=None, number2=None, seed=None, count=1):
         if number1 is None:
@@ -1104,6 +1124,10 @@ def listSubstract(a, b):
     else:
         return [item for item in a if item not in b]
 
+def getDateDay(localDelimiter=".", globalDelimiter="-"):
+    return datetime.now().strftime("%Y" + localDelimiter + "%m" + localDelimiter + "%d")
+def getDateMin(localDelimiter="."):
+    return datetime.now().strftime("%Y" + localDelimiter + "%m" + localDelimiter + "%d" + globalDelimiter + "%H" + localDelimiter + "%M")
 
 def test1():
     for readableDate in [

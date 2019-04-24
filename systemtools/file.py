@@ -12,7 +12,10 @@ from systemtools.basics import getRandomStr
 import subprocess, zipfile
 from distutils.dir_util import copy_tree
 import requests
-import xtract
+try:
+    import xtract
+except: pass
+import bz2
 
 
 class TIMESPENT_UNIT(Enum):
@@ -138,6 +141,7 @@ def globRemove(globPattern):
     removeFiles(filesPaths)
 
 def removeFile(path):
+    print("DEPRECATED file or dir removale")
     if not isinstance(path, list):
         path = [path]
     for currentPath in path:
@@ -146,8 +150,10 @@ def removeFile(path):
         except OSError:
             pass
 def removeFiles(path):
+    print("DEPRECATED file or dir removale")
     removeFile(path)
 def removeAll(path):
+    print("DEPRECATED file or dir removale")
     removeFile(path)
 
 def fileToStr(path, split=False, encoding=None):
@@ -207,23 +213,69 @@ def fileToStrListYielder(path,
         basicLog(str(path) + " file not found.", logger, verbose)
 
 
+def linesCount(filePath):
+    count = 0
+    with open(filePath, "r") as f:
+        for line in f:
+            count += 1
+    return count
+
+def rm(*args, **kwargs):
+    return remove(*args, **kwargs)
+def remove(path, secure=True, minSlashCount=5, doRaise=True, skipDirs=False, skipFiles=False, decreaseMinSlashCountForTmp=True):
+    if path is None or len(path) == 0:
+        return
+    if isinstance(path, str):
+        path = [path]
+    for currentPath in path:
+        if secure and decreaseMinSlashCountForTmp and minSlashCount > 0:
+            minSlashCount -= minSlashCount
+        if secure and currentPath.count('/') < minSlashCount:
+            errorMsg = "Not enough slashes in " + currentPath
+            if doRaise:
+                raise Exception(errorMsg)
+            else:
+                print(errorMsg)
+            return
+        if isDir(currentPath) and not skipDirs:
+            try:
+                return shutil.rmtree(currentPath, True)
+            except Exception as e:
+                if doRaise:
+                    raise e
+                else:
+                    print(str(e))
+        if isFile(currentPath) and not skipFiles:
+            try:
+                os.remove(currentPath)
+            except OSError as e: # this would be "except OSError, e:" before Python 2.6
+                if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
+                    raise # re-raise exception if a different error occurred
+    return
+
 def removeIfExists(path):
+    print("DEPRECATED file or dir removale")
     try:
         os.remove(path)
     except OSError as e: # this would be "except OSError, e:" before Python 2.6
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
             raise # re-raise exception if a different error occurred
 def removeIfExistsSecure(path, slashCount=5):
+    print("DEPRECATED file or dir removale")
     if path.count('/') >= slashCount:
         removeIfExists(path)
 
 def removeDir(*args, **kwargs):
+    print("DEPRECATED file or dir removale")
     return removeTreeIfExists(*args, **kwargs)
 def removeTreeIfExists(path):
+    print("DEPRECATED file or dir removale")
     return shutil.rmtree(path, True)
 def removeDirSecure(*args, **kwargs):
+    print("DEPRECATED file or dir removale")
     return removeTreeIfExistsSecure(*args, **kwargs)
 def removeTreeIfExistsSecure(path, slashCount=5):
+    print("DEPRECATED file or dir removale")
     if path.count('/') >= slashCount:
         return removeTreeIfExists(path)
     return None
@@ -347,6 +399,32 @@ def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=False, logger
                 logger.error(str(e))
         return False
 
+
+def fileToMultiParts(filePath, outputDir=None, nbParts=40, compress=True, checkLineCount=False):
+    """
+        This function take a file path and write it in muliparts
+    """
+    if outputDir is None:
+        outputDir = filePath + "-multiparts"
+    if not isDir(outputDir):
+        mkdir(outputDir)
+    if checkLineCount:
+        print(filePath)
+        c = linesCount(filePath)
+        if nbParts > c:
+            nbParts = c
+    with open(filePath, 'r') as f:
+        if compress:
+            files = [bz2.open(outputDir + '/%d.txt.bz2' % i, 'wt') for i in range(nbParts)]
+        else:
+            files = [open(outputDir + '/%d.txt' % i, 'w') for i in range(nbParts)]
+        for i, line in enumerate(f):
+            files[i % nbParts].write(line)
+        for f in files:
+            f.close()
+    return outputDir
+
+
 def decryptFile(path, key, ext=".encrypted.zip", remove=False, logger=None, verbose=True):
     """
         This function decrypt a file and return the text
@@ -434,10 +512,20 @@ def extract(filePath, destinationDir=None, upIfUnique=True, doDoubleExtract=True
     return extractedDirPath
 
 
+def testFileToMultiParts():
+    directory = getExecDir(__file__) + "/testdata"
+    filePath = sortedGlob(directory + "/*")[0]
+    workingDir = tmpDir("vectors-test")
+    result = extract(filePath, destinationDir=workingDir)
+    outputDir = fileToMultiParts(result, checkLineCount=True, compress=True)
+    print(outputDir)
+
+
 if __name__ == '__main__':
+    testRM()
     # print(download("http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"))
     # extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz")
-    print(extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz", tmpDir("aaa")))
+    # print(extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz", tmpDir("aaa")))
 #     normalizeNumericalFilePaths("/home/hayj/test/test1/*.txt")
 #     normalizeNumericalFilePaths("/users/modhel/hayj/NoSave/Data/TwitterArchiveOrg/Converted/*.bz2")
 #     strToTmpFile("hoho", subDir="test", ext="txt")

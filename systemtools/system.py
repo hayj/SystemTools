@@ -14,15 +14,104 @@ import collections
 import socket
 from random import randint
 from operator import itemgetter
-import sh
 import multiprocessing
 import time
 import signal
 import getpass
 
+# from systemtools.logger import logException, log
 from systemtools.basics import *
+from systemtools.file import *
+from systemtools.number import *
 from psutil import virtual_memory
 
+
+
+def isPlatform(text):
+    if text is None:
+        return False
+    text = text.lower()
+    currentPlatform = platform()
+    currentPlatform = currentPlatform.lower()
+    return currentPlatform.startswith(text)
+def windows():
+    return isPlatform("windows")
+def linux():
+    return isPlatform("linux")
+def mac():
+    return isPlatform("os") or isPlatform("mac")
+def platform():
+    platforms = {
+        'linux1' : 'Linux',
+        'linux2' : 'Linux',
+        'darwin' : 'OS X',
+        'win32' : 'Windows',
+        'nt' : 'Windows',
+        'win64' : 'Windows',
+    }
+    if sys.platform not in platforms:
+        return sys.platform
+    return platforms[sys.platform]
+
+# def sh(*args, **kwargs):
+#     return exec(*args, **kwargs)
+def bash(*args, **kwargs):
+    return exec(*args, **kwargs)
+def exec(commands, doPrint=True, useBuiltin=True, logger=None, verbose=True):
+    """
+        Execute any command as a bash script for Linux platforms.
+        In case useBuiltin is `True`, no output will be returned.
+        For Linux platforms, the function will source `~/.bash_profile`, `~/.bashrc` and `~/.bash_aliases` if they exist.
+    """
+    if linux():
+        if isinstance(commands, list):
+            commands = "\n".join(commands)
+        script = ""
+        if isFile(homeDir() + "/.bashrc"):
+            script += "source ~/.bashrc" + "\n"
+        if isFile(homeDir() + "/.bash_profile"):
+            script += "source ~/.bash_profile" + "\n"
+        if isFile(homeDir() + "/.bash_aliases"):
+            script += "shopt -s expand_aliases" + "\n"
+            script += "source ~/.bash_aliases" + "\n"
+        script += commands
+        scriptPath = strToTmpFile(script)
+        result = None
+        try:
+            # result = subprocess.Popen(["bash", scriptPath], shell=False,
+            #     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            if doPrint and useBuiltin:
+                os.system("bash " + scriptPath)
+            else:
+                # result = os.popen("bash " + scriptPath).read()
+                sp = subprocess.Popen(["bash", scriptPath], shell=False,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                result, error = sp.communicate()
+                result = byteToStr(result)
+                error = byteToStr(error)
+                if error is not None:
+                    result += "\n\n" + error
+                result = result.strip()
+            # result = sh.bash(scriptPath)
+        except Exception as e:
+            result = "Exception type: " + str(type(e)) + "\n"
+            result += "Exception: " + str(e)
+            try:
+                result +=  "\n" + traceback.format_exc()
+            except: pass
+        rm(scriptPath)
+        if doPrint and verbose and result is not None and len(result) > 0:
+            if logger is None:
+                print(result)
+            else:
+                logger.log(result)
+        return result
+    elif windows():
+        raise Exception("Please implement exec funct for Windows platform")
+    elif mac():
+        raise Exception("Please implement exec funct for OS X platform")
+    else:
+        raise Exception("Unkown platform " + str(platform()))
 
 
 def getUsedPorts(logger=None):
@@ -84,6 +173,9 @@ def enableWifi():
     time.sleep(5)
     print("WiFi enabled!")
 
+def isDocker():
+    return isDir("/hosthome")
+
 def isHostname(hostname):
     return getHostname().startswith(hostname)
 
@@ -95,44 +187,46 @@ def getHostname():
 def sleep(seconds):
     time.sleep(seconds)
 
-# Deprecated (use sh lib instead):
-def bash(text):
-    """
-        Deprecated: use sh lib instead
-        But it doesn't work on eclipse, use instead a python command line
-    """
-    text = text.split(" ")
-    return subprocess.call(text)
+# # Deprecated (use sh lib instead):
+# def bash(text):
+#     """
+#         Deprecated: use sh lib instead
+#         But it doesn't work on eclipse, use instead a python command line
+#     """
+#     text = text.split(" ")
+#     return subprocess.call(text)
 
-# Deprecated (use sh lib instead):
-def bash2(text):
-    """
-        Deprecated: use sh lib instead
-        But it doesn't work on eclipse, use instead a python command line
-    """
-    os.system(text)
+# # Deprecated (use sh lib instead):
+# def bash2(text):
+#     """
+#         Deprecated: use sh lib instead
+#         But it doesn't work on eclipse, use instead a python command line
+#     """
+#     os.system(text)
 
-# Deprecated (use sh lib instead):
-def bash3(text):
-    """
-        Deprecated: use sh lib instead
-        But it doesn't work on eclipse, use instead a python command line
-    """
-#     text = ['/bin/bash', '-c'] + text.split(" ")
-    text = text.split(" ")
-    return subprocess.check_output(text)
+# # Deprecated (use sh lib instead):
+# def bash3(text):
+#     """
+#         Deprecated: use sh lib instead
+#         But it doesn't work on eclipse, use instead a python command line
+#     """
+# #     text = ['/bin/bash', '-c'] + text.split(" ")
+#     text = text.split(" ")
+#     return subprocess.check_output(text)
 
-# Déprecated (use sh lib instead):
-def bash4(text):
-    """
-        Deprecated: use sh lib instead
-        But it doesn't work on eclipse, use instead a python command line
-    """
-#     text = ['/bin/bash', '-c'] + text.split(" ")
-    text = text.split(" ")
-    pipe = subprocess.Popen(text, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable='/bin/bash')
-    stdout, stderr = pipe.communicate()
-    return stdout
+# # Déprecated (use sh lib instead):
+# def bash4(text):
+#     """
+#         Deprecated: use sh lib instead
+#         But it doesn't work on eclipse, use instead a python command line
+#     """
+# #     text = ['/bin/bash', '-c'] + text.split(" ")
+#     text = text.split(" ")
+#     pipe = subprocess.Popen(text, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, executable='/bin/bash')
+#     stdout, stderr = pipe.communicate()
+#     return stdout
+
+
 
 def enum(enumName, *listValueNames):
     """
@@ -157,14 +251,22 @@ def enum(enumName, *listValueNames):
     return mainType
 
 
-def stout():
-    """
-    Return True if we are on stout
-    """
-    return (psutil.cpu_count(logical=True) > 40) and ((psutil.virtual_memory().total / (1*(10**9))) > 40);
+# psutil.virtual_memory()["available"]
+
+# def stout():
+#     """
+#     Return True if we are on stout
+#     """
+#     return (psutil.cpu_count(logical=True) > 40) and ((psutil.virtual_memory().total / (1*(10**9))) > 40);
 
 def getMemoryUsage(d):
     return asizeof(d)
+
+def freeRAM():
+    return truncateFloat(psutil.virtual_memory().free / (1*(10**9)), 2)
+
+def usedRAM():
+    return truncateFloat(psutil.virtual_memory().used / (1*(10**9)), 2)
 
 def getMemoryPercent():
     return psutil.virtual_memory().percent

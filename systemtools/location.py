@@ -271,8 +271,21 @@ def sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=Fals
 
 def homePath(*args, **kwargs):
     return homeDir(*args, **kwargs)
+
+def nosaveDir():
+    if isDir("/NoSave"):
+        return "/NoSave"
+    elif isDir(homeDir() + "/NoSave"):
+        return homeDir() + "/NoSave"
+    else:
+        print("No NoSave dir found.")
+        return tmpDir()
+
 def homeDir():
-    return str(Path.home())
+    if isDir("/hosthome"):
+        return "/hosthome"
+    else:
+        return str(Path.home())
 
 
 def getDataPath(*args, **kwargs):
@@ -284,6 +297,8 @@ def dataDir(*args, **kwargs):
 def dataPath(defaultDirName="Data"):
     def isHostname(hostname):
         return socket.gethostname().startswith(hostname)
+    if isDir("/NoSave"):
+        return "/NoSave/Data"
     if isHostname("tipi") or isHostname("renewal"):
         # return "/users/modhel-nosave/hayj/" + defaultDirName
         return "/users/modhel-nosave/hayj/" + defaultDirName

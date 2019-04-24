@@ -38,13 +38,54 @@ from dateutil.tz import tzlocal
 from systemtools.number import *
 from tabulate import tabulate
 import itertools
+from systemtools.enumeration import *
+import copy
 
 
+class Gen2Iter():
+    # https://www.reddit.com/r/Python/comments/40idba/easy_way_to_make_an_iterator_from_a_generator_in/
+    def __init__(self, generatorFunc, *args, **kwargs):
+        self.generatorFunc = generatorFunc
+        self.args = args
+        self.kwargs = kwargs
+    def __iter__(self):
+        return self.generatorFunc(*self.args, **self.kwargs)
+
+def shuffle(data, inplace=False):
+    if not inplace:
+        data = copy.deepcopy(data)
+    random.shuffle(data)
+    return data
 
 def intByteSize(n):
     if n == 0:
         return 1
     return int(math.log(n, 256)) + 1
+
+def objectSizeMo(obj):
+    if isinstance(obj, dict):
+        return dictSizeMo(obj)
+    else:
+        size = sys.getsizeof(obj)
+        size /= 1024.0
+        size /= 1024.0
+        return size
+
+def dictSortedItems(d, desc=False):
+    keys = sorted(d.keys())
+    for key in keys:
+        yield key, d[key]
+
+def dictSizeMo(theDict):
+    """
+        Warning getsizeof doesn't give real size of a dict because it can keep a huge size for performance issue, so we have to calculate the data size on each element:
+        https://stackoverflow.com/questions/11129546/python-sys-getsizeof-reports-same-size-after-items-removed-from-list-dict
+    """
+    total = 0
+    for key, value in theDict.items():
+        total += objectSizeMo(key)
+        total += objectSizeMo(value)
+    return total
 
 
 # merge = \
@@ -63,11 +104,22 @@ def intByteSize(n):
 # exit()
 
 
+def lowerTexts(texts):
+    if texts is None or len(texts) == 0:
+        return texts
+    else:
+        if isinstance(texts[0], str):
+            for i in range(len(texts)):
+                 texts[i] = texts[i].lower()
+            return texts
+        else:
+            return [lowerTexts(item) for item in texts]
+
 def dictSelect(theDict, keys):
     """
         This function take a dict and return a new dict with only slectionned keys
     """
-    return dict((k, theDict[k]) for k in keys)
+    return dict((k, theDict[k]) for k in keys if k in theDict)
 
 def flattenLists(lists):
     """
@@ -164,24 +216,6 @@ def reduceBlank(text, keepNewLines=False):
         text = re.sub(r'[ \t\f\v]+', ' ', text)
         return text
 
-def enumCast(text, theEnum, logger=None, verbose=True):
-    try:
-        if isinstance(text, Enum):
-            return text
-        else:
-            return theEnum[text]
-    except Exception as e:
-        if logger is not None:
-            logger.error(str(e), verbose=verbose)
-        return None
-
-def enumEquals(a, b):
-    if isinstance(a, str) or isinstance(b, str):
-        if isinstance(a, Enum):
-            a = a.name
-        if isinstance(b, Enum):
-            b = b.name
-    return a == b
 
 def stripAllLines(text, removeBlank=True):
     if text is None or not isinstance(text, str) or text == "":
@@ -1124,9 +1158,9 @@ def listSubstract(a, b):
     else:
         return [item for item in a if item not in b]
 
-def getDateDay(localDelimiter=".", globalDelimiter="-"):
+def getDateDay(localDelimiter="."):
     return datetime.now().strftime("%Y" + localDelimiter + "%m" + localDelimiter + "%d")
-def getDateMin(localDelimiter="."):
+def getDateMin(localDelimiter=".", globalDelimiter="-"):
     return datetime.now().strftime("%Y" + localDelimiter + "%m" + localDelimiter + "%d" + globalDelimiter + "%H" + localDelimiter + "%M")
 
 def test1():
@@ -1252,9 +1286,25 @@ def split(l, n):
 #     return out
     return [l[i::n] for i in range(n)]
 
-def dictHash(*args, **kwargs):
+def associate(keys, values, shift=0):
+    shift = shift % len(values)
+    assoc = dict()
+    for key in keys:
+        assoc[key] = values[shift]
+        shift += 1
+        if shift == len(values):
+            shift = 0
+    return assoc
+
+def dictToHash(*args, **kwargs):
+    return objecToHash(*args, **kwargs)
+def objecToHash(*args, **kwargs):
+    return md5(objectAsKey(*args, **kwargs))
+def dictAsKey(*args, **kwargs):
     return objectAsKey(*args, **kwargs)
-def objectHash(*args, **kwargs):
+def dictToKey(*args, **kwargs):
+    return objectAsKey(*args, **kwargs)
+def objectToKey(*args, **kwargs):
     return objectAsKey(*args, **kwargs)
 def objectAsKey(o):
     """

@@ -18,8 +18,6 @@ import multiprocessing
 import time
 import signal
 import getpass
-
-# from systemtools.logger import logException, log
 from systemtools.basics import *
 from systemtools.file import *
 from systemtools.number import *
@@ -57,7 +55,7 @@ def platform():
 #     return exec(*args, **kwargs)
 def bash(*args, **kwargs):
     return exec(*args, **kwargs)
-def exec(commands, doPrint=True, useBuiltin=True, logger=None, verbose=True):
+def exec(commands, doPrint=True, useBuiltin=False, logger=None, verbose=True):
     """
         Execute any command as a bash script for Linux platforms.
         In case useBuiltin is `True`, no output will be returned.
@@ -134,6 +132,9 @@ def getUsedPorts(logger=None):
         if logger is not None:
             logger.error(str(e))
         return []
+
+def isUser(text):
+    return getUser().startswith(text)
 
 def getUser():
     return getpass.getuser()
@@ -282,6 +283,29 @@ def randomSleep(min=0.1, max=None):
     time.sleep(sleepDuration)
     return sleepDuration
 
+def isWorkingProxy(proxy, verbose=False):
+    try:
+        http_proxy  = "http://" + proxy
+        https_proxy = "https://" + proxy
+        ftp_proxy   = "ftp://" + proxy
+        proxyDict = { 
+                      "http"  : http_proxy, 
+                      "https" : https_proxy, 
+                      "ftp"   : ftp_proxy
+                    }
+        for url in \
+        [
+            "https://www.wikipedia.org/",
+            "https://www.python.org/",
+        ]:
+
+            r = requests.get(url, proxies=proxyDict, timeout=10)
+            if len(r.text) > 100:
+                return True
+    except Exception as e:
+        if verbose:
+            print(e)
+    return False
 
 # Deprecated : use argparse instead
 def argvOptionsToDict(argv=None):

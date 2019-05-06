@@ -12,6 +12,8 @@ import random
 import getpass
 from pathlib import Path
 import socket
+from systemtools.number import digitalizeIntegers
+from operator import itemgetter
 
 def decomposePath(path):
     """
@@ -193,18 +195,15 @@ def getUtilDirectory():
 
 class GlobSortEnum():
     (
+        AUTO,
         MTIME,
         NAME,
         SIZE,
         NUMERICAL_NAME
-    ) = list(range(4))
+    ) = list(range(5))
 
-def pap():
-    return "pap"
-def pap2():
-    return "pap2"
 
-def sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=False):
+def sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.AUTO, reverse=False):
     """
         See the README
 
@@ -257,13 +256,23 @@ def sortedGlob(regex, caseSensitive=True, sortBy=GlobSortEnum.NAME, reverse=Fals
         paths = insensitiveGlob(regex)
 
     # Sort the result :
-    if sortBy == GlobSortEnum.NAME:
+    if sortBy == GlobSortEnum.AUTO:
+        # First we replace all integers by "000000012" for "12" for example:
+        totalDigits = 100
+        data = []
+        for text in paths:
+            data.append((text, digitalizeIntegers(text)))
+            data = sorted(data, key=itemgetter(1))
+        paths = [x for x, y in data]
+    elif sortBy == GlobSortEnum.NAME:
+        print("DEPRECATED GlobSortEnum.NAME, use GlobSortEnum.AUTO instead")
         paths.sort(reverse=reverse)
     elif sortBy == GlobSortEnum.MTIME:
         paths.sort(key=os.path.getmtime, reverse=reverse)
     elif sortBy == GlobSortEnum.SIZE:
         paths.sort(key=os.path.getsize, reverse=reverse)
     elif sortBy == GlobSortEnum.NUMERICAL_NAME:
+        print("DEPRECATED GlobSortEnum.NUMERICAL_NAME, use GlobSortEnum.AUTO instead")
         paths.sort(key=getFileNum, reverse=reverse)
 
     return list(paths)
@@ -299,17 +308,17 @@ def dataPath(defaultDirName="Data"):
         return socket.gethostname().startswith(hostname)
     if isDir("/NoSave"):
         return "/NoSave/Data"
-    if isHostname("tipi") or isHostname("renewal"):
-        # return "/users/modhel-nosave/hayj/" + defaultDirName
+    elif isDir(homeDir() + "/NoSave"):
         return "/users/modhel-nosave/hayj/" + defaultDirName
-    return homeDir() + "/" + defaultDirName
+    else:
+        return homeDir() + "/" + defaultDirName
 
 def sortedWalk():
     pass # TODO
 
 if __name__ == '__main__':
 #     print(tmpDir(subDir="test"))
-    print(dataDir())
+    print(sortedGlob(dataDir() + "/*"))
 
 
 

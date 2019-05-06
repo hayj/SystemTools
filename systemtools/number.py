@@ -293,3 +293,44 @@ def floatAsReadable(f):
     if result.startswith("."):
         result = "0" + result
     return result
+
+
+
+def digitalizeIntegers(text, totalDigits=100):
+    if text is None or not isinstance(text, str) or text == "":
+        return text
+    result = str(text)
+    toEdit = []
+    for current in re.finditer("[0-9]+", text):
+        theInt = current.group(0)
+        start = current.start(0)
+        end = current.end(0)
+        remainingDigits = totalDigits - len(theInt)
+        digitalizedInt = "0" * remainingDigits + theInt
+        toEdit.append((digitalizedInt, start, end))
+    for digitalizedInt, start, end in reversed(toEdit):
+        # print(digitalizedInt, start, end)
+        result = result[:start] + digitalizedInt + result[end:]
+    return result
+
+def main():
+    allTexts = \
+    [
+        "ttt1ttt3t",
+        "zzz23.32zzz8",
+        "3.0z",
+        "aaaaa",
+        "bb",
+        None,
+        "1111111111111111111111111111111111111111111",
+        "5",
+        "0",
+    ]
+    for current in allTexts:
+        print(current)
+        print(digitalizeIntegers(current))
+        print()
+
+if __name__ == '__main__':
+    # print(list(range(1, -1, -1)))
+    main()

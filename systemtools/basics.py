@@ -60,6 +60,8 @@ def shuffle(data, inplace=False):
 def intByteSize(n):
     if n == 0:
         return 1
+    elif n < 0:
+        n = -n
     return int(math.log(n, 256)) + 1
 
 def objectSizeMo(obj):
@@ -1150,6 +1152,10 @@ def weAreBefore(readableDate):
 def weAreAfter(*args, **kwargs):
     return not weAreBefore(*args, **kwargs)
 
+def substract(*args, **kwargs):
+    return listSubstract(*args, **kwargs)
+def setSubstract(*args, **kwargs):
+    return listSubstract(*args, **kwargs)
 def listSubstract(a, b):
     if a is None:
         return []
@@ -1298,7 +1304,7 @@ def associate(keys, values, shift=0):
 
 def dictToHash(*args, **kwargs):
     return objecToHash(*args, **kwargs)
-def objecToHash(*args, **kwargs):
+def objectToHash(*args, **kwargs):
     return md5(objectAsKey(*args, **kwargs))
 def dictAsKey(*args, **kwargs):
     return objectAsKey(*args, **kwargs)

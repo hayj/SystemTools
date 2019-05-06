@@ -164,11 +164,6 @@ def fileToStr(path, split=False, encoding=None):
             data = myfile.read()
         return data
 
-def fileToStrList_old(path, strip=True):
-    data = fileToStr(path)
-    if strip:
-        data = data.strip()
-    return data.splitlines()
 
 def fileToStrList(*args, removeDuplicates=False, **kwargs):
     result = fileToStrListYielder(*args, **kwargs)

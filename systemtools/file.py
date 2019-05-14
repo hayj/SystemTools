@@ -9,6 +9,7 @@ import pickle
 import string
 from systemtools.location import isFile, getDir, isDir, sortedGlob, decomposePath, tmpDir, homeDir
 from systemtools.basics import getRandomStr
+from systemtools.number import *
 import subprocess, zipfile
 from distutils.dir_util import copy_tree
 import requests
@@ -17,6 +18,47 @@ try:
 except: pass
 import bz2
 
+
+def getHumanSize(path):
+    return getSize(path, unit='auto', humanReadable=True)
+
+def getSize(path, unit='b', humanReadable=False, decimal=2):
+    def __convertSize(size, unit):
+        unit = unit.lower()
+        if unit in ['k', 'ko', 'kilo']:
+            size = size / 1024
+        elif unit in ['m', 'mo', 'mega']:
+            size = size / 1024 / 1024
+        elif unit in ['g', 'go', 'giga']:
+            size = size / 1024 / 1024 / 1024
+        else: # unit in ['b', 'bytes']
+            pass
+        return size
+    size = None
+    if isFile(path):
+        size = os.path.getsize(path)
+        size = __convertSize(size, unit)
+    elif isDir(path):
+        totalSize = 0
+        for current in sortedGlob(path + "/*"):
+            totalSize += getSize(current, unit='b')
+        size = __convertSize(totalSize, unit)
+    if unit in ['a', 'auto', None]:
+        tempSize = size
+        for u in ['k', 'm', 'g']:
+            tempSize = tempSize / 1024
+            if tempSize < 1024 and tempSize > 0:
+                size = tempSize
+                unit = u
+                break
+    if humanReadable:
+        return str(truncateFloat(size, decimal)) + unit
+    else:
+        return size
+
+
+
+    
 
 class TIMESPENT_UNIT(Enum):
     DAYS = 1
@@ -515,6 +557,14 @@ def testFileToMultiParts():
     outputDir = fileToMultiParts(result, checkLineCount=True, compress=True)
     print(outputDir)
 
+
+def testSizeHumanSize():
+    path = "/home/hayj/tmp/WordVectors/fasttext/crawl-300d-2M.vec"
+    path = "/home/hayj/tmp/d2v"
+    path = "/home/hayj/tmp/psl.txt"
+    print(os.path.getsize(path))
+    print(getSize(path, humanReadable=True, unit='m'))
+    print(getHumainSize(path))
 
 if __name__ == '__main__':
     testRM()

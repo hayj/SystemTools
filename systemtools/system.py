@@ -1,4 +1,4 @@
-# coding: utf-8
+# pew in st-venv python ~/Workspace/Python/Utils/SystemTools/systemtools/system.py
 
 import subprocess
 import time
@@ -22,6 +22,7 @@ from systemtools.basics import *
 from systemtools.file import *
 from systemtools.number import *
 from psutil import virtual_memory
+import traceback
 
 
 
@@ -298,13 +299,17 @@ def isWorkingProxy(proxy, verbose=False):
             "https://www.wikipedia.org/",
             "https://www.python.org/",
         ]:
-
-            r = requests.get(url, proxies=proxyDict, timeout=10)
+            r = requests.get\
+            (
+                url,
+                proxies=proxyDict,
+                timeout=10,
+            )
             if len(r.text) > 100:
                 return True
     except Exception as e:
         if verbose:
-            print(e)
+            print(str(e) + "\n" + str(traceback.format_exc()))
     return False
 
 # Deprecated : use argparse instead
@@ -418,8 +423,10 @@ def test1():
 
 
 
+
 if __name__ == "__main__":
-    print(getRAMTotal())
+    print(tipiNumber())
+    # print(getRAMTotal())
 
 # TODO
 """def copyDirectory(src, dst, symlinks=False, ignore=None):

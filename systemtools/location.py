@@ -14,6 +14,7 @@ from pathlib import Path
 import socket
 from systemtools.number import digitalizeIntegers
 from operator import itemgetter
+import pwd
 
 def decomposePath(path):
     """
@@ -316,9 +317,25 @@ def dataPath(defaultDirName="Data"):
 def sortedWalk():
     pass # TODO
 
+
+
+
+def owner(filename):
+    try:
+        return pwd.getpwuid(os.stat(filename).st_uid).pw_name
+    except Exception as e:
+        print(e)
+        return None
+
 if __name__ == '__main__':
 #     print(tmpDir(subDir="test"))
-    print(sortedGlob(dataDir() + "/*"))
+    # print(sortedGlob(dataDir() + "/*"))
+
+
+    for current in sortedGlob("/tmp/*"):
+        print(current)
+        print(owner(current))
+        print()
 
 
 

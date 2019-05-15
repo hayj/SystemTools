@@ -1,4 +1,4 @@
-# coding: utf-8
+# pew in st-venv python ~/Workspace/Python/Utils/SystemTools/systemtools/file.py
 
 import os, errno
 import shutil
@@ -7,8 +7,8 @@ import time
 from enum import Enum
 import pickle
 import string
-from systemtools.location import isFile, getDir, isDir, sortedGlob, decomposePath, tmpDir, homeDir
-from systemtools.basics import getRandomStr
+from systemtools.location import isFile, getDir, isDir, sortedGlob, decomposePath, tmpDir, homeDir, owner
+from systemtools.basics import getRandomStr, printLTS
 from systemtools.number import *
 import subprocess, zipfile
 from distutils.dir_util import copy_tree
@@ -17,6 +17,7 @@ try:
     import xtract
 except: pass
 import bz2
+import getpass
 
 
 def getHumanSize(path):
@@ -520,9 +521,9 @@ def extract(filePath, destinationDir=None, upIfUnique=True, doDoubleExtract=True
         extractedDirPath = xtract.xtract(extractedDirPath)
         # We remove the previous element:
         if isDir(previousPath):
-            removeDirSecure(previousPath, slashCount=4)
+            remove(previousPath, minSlashCount=4)
         elif isFile(previousPath):
-            removeIfExistsSecure(previousPath, slashCount=4)
+            remove(previousPath, minSlashCount=4)
     # If there is only one folder or file under extractedDirPath, we up it:
     if upIfUnique and len(sortedGlob(extractedDirPath + "/*")) == 1:
         # We get the element path:
@@ -535,7 +536,7 @@ def extract(filePath, destinationDir=None, upIfUnique=True, doDoubleExtract=True
         # then we move it:
         shutil.move(elementPath, dst)
         # And finally we remove the dir:
-        removeDirSecure(extractedDirPath, slashCount=4)
+        remove(extractedDirPath, minSlashCount=4)
         # We update extractedDirPath:
         extractedDirPath = dst
     # We move the element:
@@ -566,8 +567,45 @@ def testSizeHumanSize():
     print(getSize(path, humanReadable=True, unit='m'))
     print(getHumainSize(path))
 
+def clearRtmp\
+(
+    rtmpLocation="/tmp",
+    startsWith=None,
+    olderHour=4,
+    onlyOwner=True,
+    verbose=False,
+    logger=None,
+    dryRun=False,
+
+):
+    me = getpass.getuser()
+    elementsToDelete = []
+    for element in sortedGlob(rtmpLocation + "/*"):
+        if onlyOwner and owner(element) != me:
+            continue
+        if olderHour is not None and getLastModifiedTimeSpent(element, timeSpentUnit=TIMESPENT_UNIT.HOURS) < olderHour:
+            continue
+        if startsWith is not None and not decomposePath(element)[3].startswith(startsWith):
+            continue
+        elementsToDelete.append(element)
+    for element in elementsToDelete:
+        if element.startswith("/tmp"):
+            try:
+                if not dryRun:
+                    remove(element, secure=False)
+                if verbose:
+                    msg = "We removed " + element
+                    if logger is not None:
+                        try:
+                            logger.log(msg)
+                        except: pass
+                    else:
+                        print(msg)
+            except Exception as e:
+                print(e)
+
 if __name__ == '__main__':
-    testRM()
+    # testRM()
     # print(download("http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"))
     # extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz")
     # print(extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz", tmpDir("aaa")))
@@ -585,7 +623,7 @@ if __name__ == '__main__':
 #
 #     print(text)
 
-    pass
+    clearRtmp(startsWith="tmp", olderHour=4, verbose=True)
 
 
 

@@ -1,6 +1,8 @@
 # coding: utf-8
 # http://sametmax.com/ecrire-des-logs-en-python/
 
+# pew in st-venv python ~/Workspace/Python/Utils/SystemTools/systemtools/logger.py
+
 import logging
 from logging.handlers import RotatingFileHandler
 from systemtools.system import *
@@ -8,6 +10,7 @@ from systemtools.basics import *
 from systemtools.file import *
 from enum import Enum
 import traceback
+import smtplib
 
 
 LOGTYPE = Enum('LOGTYPE', 'error info warning')
@@ -129,3 +132,52 @@ class Logger():
     def getLogger(self):
         return self.logger
 
+
+
+def notif(subject, content="", to=None, logger=None, verbose=True, name='HJWeb Watcher', sender='hjwebwatcher@gmail.com', password=None, test=False):
+    if not isinstance(subject, str):
+        subject = lts(subject)
+    if not isinstance(content, str):
+        content = lts(content)
+    if subject is not None:
+        subject = subject.strip()
+    if subject is not None and content is None:
+        if "\n" in subject:
+            content = subject
+            subject = None
+    try:
+        if to is None:
+            to = sender
+            toName = name
+        else:
+            toName = "You"
+        if password is None:
+            try:
+                from datatools.dataencryptor import DataEncryptor
+                password = DataEncryptor()["gmailauth"][sender]
+            except Exception as e:
+                logException(e, logger, verbose=verbose)
+        newline = "\n"
+        email = \
+"""From: %s <%s>
+To: %s <%s>
+Subject: %s
+
+%s
+""" % (name, sender, toName, to, subject, content)
+        if test:
+            log(email, logger, verbose=verbose)
+        else:
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            server.ehlo()
+            # server.starttls() # not working
+            server.login(sender, password)
+            server.sendmail(sender, to, email)
+            server.close()
+            # server.quit() # not working
+    except Exception as e:
+        logException(e, logger, verbose=verbose)
+        logError("You probaly have to log to your gmail account and allow recent access. Or connect to https://accounts.google.com/b/0/DisplayUnlockCaptcha and click continue (WARNING: choose the right user after the link redirection by setting the user number of your browser (\"/b/0\" correspond to the first logged user in your browser))")
+
+if __name__ == '__main__':
+    notif("ccc")

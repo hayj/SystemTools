@@ -42,14 +42,17 @@ from systemtools.enumeration import *
 import copy
 
 
-class Gen2Iter():
+
+class AgainAndAgain():
     # https://www.reddit.com/r/Python/comments/40idba/easy_way_to_make_an_iterator_from_a_generator_in/
-    def __init__(self, generatorFunc, *args, **kwargs):
-        self.generatorFunc = generatorFunc
+    def __init__(self, generator_func, *args, **kwargs):
+        self.generator_func = generator_func
         self.args = args
         self.kwargs = kwargs
     def __iter__(self):
-        return self.generatorFunc(*self.args, **self.kwargs)
+        return self.generator_func(*self.args, **self.kwargs)
+class Gen2Iter(AgainAndAgain):
+    pass
 
 def shuffle(data, inplace=False):
     if not inplace:

@@ -312,6 +312,7 @@ def isWorkingProxy(proxy, verbose=False):
             print(str(e) + "\n" + str(traceback.format_exc()))
     return False
 
+
 # Deprecated : use argparse instead
 def argvOptionsToDict(argv=None):
     """

@@ -1171,6 +1171,12 @@ def getDateDay(localDelimiter="."):
     return datetime.now().strftime("%Y" + localDelimiter + "%m" + localDelimiter + "%d")
 def getDateMin(localDelimiter=".", globalDelimiter="-"):
     return datetime.now().strftime("%Y" + localDelimiter + "%m" + localDelimiter + "%d" + globalDelimiter + "%H" + localDelimiter + "%M")
+def getDateMinute(*args, **kwargs):
+    return getDateMin(*args, **kwargs)
+def getDateSecond(localDelimiter=".", globalDelimiter="-"):
+    return datetime.now().strftime("%Y" + localDelimiter + "%m" + localDelimiter + "%d" + globalDelimiter + "%H" + localDelimiter + "%M" + localDelimiter + "%S")
+def getDateSec(*args, **kwargs):
+    return getDateMin(*args, **kwargs)
 
 def test1():
     for readableDate in [

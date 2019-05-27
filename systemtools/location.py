@@ -158,6 +158,23 @@ def getExecDirectory(_file_=None):
         # We return the folder according to specified __file__ :
         return os.path.dirname(os.path.realpath(_file_))
 
+def rtmpDir(subDir=None):
+    # Then we modified subDir if needed:
+    if subDir is None:
+        subDir = ""
+    elif not subDir.startswith("/"):
+        subDir = "/" + subDir
+    # We return the rtmp dir
+    if isDir("/rtmp"):
+        theDir = "/rtmp" + subDir
+        return "/rtmp"
+    elif isDir("/tmp"):
+        theDir = "/tmp/hayj" + subDir
+    else:
+        raise Exception("No root tmp dir found")
+    os.makedirs(theDir, exist_ok=True)
+    return theDir
+
 def getWorkingDirectory(*args, **kwargs):
     return tmpDir(*args, **kwargs)
 def getTmpDir(*args, **kwargs):
@@ -178,7 +195,7 @@ def tmpDir(_file_=None, subDir=None):
     if subDir is None:
         subDir = ""
     elif not subDir.startswith("/"):
-            subDir = "/" + subDir
+        subDir = "/" + subDir
     # Finally we get the root path:
     if _file_ is None:
         rootPath = homeDir()

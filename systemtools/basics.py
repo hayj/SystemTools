@@ -1176,7 +1176,7 @@ def getDateMinute(*args, **kwargs):
 def getDateSecond(localDelimiter=".", globalDelimiter="-"):
     return datetime.now().strftime("%Y" + localDelimiter + "%m" + localDelimiter + "%d" + globalDelimiter + "%H" + localDelimiter + "%M" + localDelimiter + "%S")
 def getDateSec(*args, **kwargs):
-    return getDateMin(*args, **kwargs)
+    return getDateSecond(*args, **kwargs)
 
 def test1():
     for readableDate in [

@@ -265,6 +265,9 @@ def getMemoryUsage(d):
     return asizeof(d)
 
 def freeRAM():
+    """
+        return the actual free ram space in Go
+    """
     return truncateFloat(psutil.virtual_memory().free / (1*(10**9)), 2)
 
 def usedRAM():

@@ -58,7 +58,6 @@ def getSize(path, unit='b', humanReadable=False, decimal=2):
         return size
 
 
-
     
 
 class TIMESPENT_UNIT(Enum):

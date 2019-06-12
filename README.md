@@ -143,6 +143,13 @@ This module gathers some useful functions on file system location.
  * **isFile(path)**: Return True is the given path is a file.
  * **decomposePath(path)**: Return a tuple (dir, filename, ext, filenameAndExt) of a path.
 
+You can set the default tmp directory:
+
+```python
+from systemtools import config as systConf
+systConf.defaultTmpDir = "/your/tmp/directory"
+```
+
 ## systemtools.basics
 
 This module gathers some useful basics functions.

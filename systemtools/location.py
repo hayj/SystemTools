@@ -15,6 +15,7 @@ import socket
 from systemtools.number import digitalizeIntegers
 from operator import itemgetter
 import pwd
+from systemtools import config as systConf
 
 def decomposePath(path):
     """
@@ -196,13 +197,16 @@ def tmpDir(_file_=None, subDir=None):
         subDir = ""
     elif not subDir.startswith("/"):
         subDir = "/" + subDir
-    # Finally we get the root path:
+    # Finally we get the root path:        
     if _file_ is None:
         rootPath = homeDir()
     else:
         rootPath = execDir(_file_)
     # And we get the tmp directory:
-    workingPath = rootPath + "/tmp" + subDir
+    if systConf.tmpDirPath is not None:
+        workingPath = systConf.tmpDirPath + subDir
+    else:
+        workingPath = rootPath + "/tmp" + subDir
     # Add the tmp directory if not exists :
     os.makedirs(workingPath, exist_ok=True)
     return workingPath

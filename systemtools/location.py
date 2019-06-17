@@ -203,8 +203,8 @@ def tmpDir(_file_=None, subDir=None):
     else:
         rootPath = execDir(_file_)
     # And we get the tmp directory:
-    if systConf.tmpDirPath is not None:
-        workingPath = systConf.tmpDirPath + subDir
+    if systConf.defaultTmpDir is not None:
+        workingPath = systConf.defaultTmpDir + subDir
     else:
         workingPath = rootPath + "/tmp" + subDir
     # Add the tmp directory if not exists :

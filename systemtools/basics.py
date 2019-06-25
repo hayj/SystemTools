@@ -398,6 +398,14 @@ def dictFirstElement(theDict):
     for key, value in theDict.items():
         return (key, value)
 
+def dictFirstValue(theDict):
+    if not isinstance(theDict, dict):
+        return None
+    if theDict is None:
+        return None
+    for key, value in theDict.items():
+        return value
+
 def dictRandomElement(theDict):
     if not isinstance(theDict, dict):
         return None

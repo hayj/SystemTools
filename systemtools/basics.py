@@ -707,6 +707,14 @@ def normalize(theList):
         return [float(i) / sum(theList) for i in theList]
 #         return [float(i) / max(theList) for i in theList]
 
+def minMaxNormalize(theList):
+    if theList is None:
+        return theList
+    else:
+        theMin = min(theList)
+        theMax = max(theList)
+        return [(i - theMin) / (theMax - theMin) for i in theList]
+
 
 def crossValidationChunk(l, partsCount):
     chunkedSet = chunkList(l, partsCount)

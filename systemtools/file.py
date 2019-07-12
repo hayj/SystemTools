@@ -86,8 +86,14 @@ def purgeOldFiles(pattern, maxTimeSpent, timeSpentUnit=TIMESPENT_UNIT.SECONDS):
         if timeSpent > maxTimeSpent:
             removeFile(current)
 
+def rename(src, dst):
+    return os.rename(src, dst) 
+
 def strToFileName(*args, **kwargs):
     return strToFilename(*args, **kwargs)
+
+def move(src, dst):
+    return shutil.move(src, dst)
 
 def strToFilename(text):
     """

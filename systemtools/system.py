@@ -409,6 +409,32 @@ def argvOptionsToDict(argv=None):
 #
 #     print optionIndexes
 
+def html2png(urlOrPath, destPath=None, width=None, height=None):
+    assert urlOrPath is not None
+    if not urlOrPath.startswith("htt") and not urlOrPath.startswith("file"):
+        urlOrPath = "file://" + urlOrPath
+    if urlOrPath.startswith("file"):
+        assert isFile(urlOrPath.replace("file://", ""))
+    size = ""
+    if width is not None:
+        size = str(width)
+        if height is not None:
+            size += "," + str(height)
+        size = "--window-size=" + size
+    start = "firefox -headless -screenshot"
+    if destPath is None and urlOrPath.startswith("file"):
+        destPath = urlOrPath.replace("file://", "") + ".png"
+    assert destPath is not None
+    command = start + " " + destPath + " " + urlOrPath + " " + size
+    bash(command, verbose=False)
+    return destPath
+
+
+def cropPNG(path, dst=None):
+    if dst is None:
+        dst = path
+    bash("convert " + path + " -trim " + dst + "", verbose=False)
+    return dst
 
 
 def test1():
@@ -426,10 +452,13 @@ def test1():
     print(count)
 
 
+def testHtmlToPNG():
+    html2png("/home/hayj/Workspace/Python/Utils/MachineLearning/machinelearning/attmap/template-test2.html")
 
 
 if __name__ == "__main__":
-    print(tipiNumber())
+    testHtmlToPNG()
+    # print(tipiNumber())
     # print(getRAMTotal())
 
 # TODO

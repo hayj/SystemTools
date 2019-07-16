@@ -189,7 +189,7 @@ def globRemove(globPattern):
     removeFiles(filesPaths)
 
 def removeFile(path):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     if not isinstance(path, list):
         path = [path]
     for currentPath in path:
@@ -198,10 +198,10 @@ def removeFile(path):
         except OSError:
             pass
 def removeFiles(path):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     removeFile(path)
 def removeAll(path):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     removeFile(path)
 
 def fileToStr(path, split=False, encoding=None):
@@ -297,28 +297,28 @@ def remove(path, secure=True, minSlashCount=5, doRaise=True, skipDirs=False, ski
     return
 
 def removeIfExists(path):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     try:
         os.remove(path)
     except OSError as e: # this would be "except OSError, e:" before Python 2.6
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
             raise # re-raise exception if a different error occurred
 def removeIfExistsSecure(path, slashCount=5):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     if path.count('/') >= slashCount:
         removeIfExists(path)
 
 def removeDir(*args, **kwargs):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     return removeTreeIfExists(*args, **kwargs)
 def removeTreeIfExists(path):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     return shutil.rmtree(path, True)
 def removeDirSecure(*args, **kwargs):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     return removeTreeIfExistsSecure(*args, **kwargs)
 def removeTreeIfExistsSecure(path, slashCount=5):
-    print("DEPRECATED file or dir removale")
+    print("DEPRECATED file or dir removal")
     if path.count('/') >= slashCount:
         return removeTreeIfExists(path)
     return None

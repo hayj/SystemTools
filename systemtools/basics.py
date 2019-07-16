@@ -44,18 +44,18 @@ import threading
 
 
 
-class AgainAndAgain():
-    # https://www.reddit.com/r/Python/comments/40idba/easy_way_to_make_an_iterator_from_a_generator_in/
-    def __init__(self, generator_func, *args, **kwargs):
-        self.generator_func = generator_func
-        self.args = args
-        self.kwargs = kwargs
-    def __iter__(self):
-        return self.generator_func(*self.args, **self.kwargs)
+# class AgainAndAgain():
+#     # https://www.reddit.com/r/Python/comments/40idba/easy_way_to_make_an_iterator_from_a_generator_in/
+#     def __init__(self, generator_func, *args, **kwargs):
+#         self.generator_func = generator_func
+#         self.args = args
+#         self.kwargs = kwargs
+#     def __iter__(self):
+#         return self.generator_func(*self.args, **self.kwargs)
 
 
-class Gen2Iter(AgainAndAgain):
-    pass
+# class Gen2Iter(AgainAndAgain):
+#     pass
 
 def shuffle(data, inplace=False):
     if not inplace:
@@ -1302,6 +1302,74 @@ def splitMaxSized(l, batchMaxSize):
     if batchMaxSize is not None and batchMaxSize > 0:
         batchCount = math.ceil(len(l) / batchMaxSize)
     return split(l, batchCount)
+
+# def ratioSplit(l, ratios):
+#     assert sum(ratios) == 1.0
+#     assert len(l) >= len(ratios)
+#     if l is None or len(l) == 0:
+#         return l
+#     amounts = [1] * len(ratios)
+#     addedCount = len(ratios)
+#     amountsIndex = 0
+#     while addedCount < len(l):
+#         amounts[amountsIndex] += 1
+#         addedCount += 1
+#         amountsIndex += 1
+#         if amountsIndex == len(amounts):
+#             amountsIndex = 0
+#     remaining = l
+#     parts = []
+#     for amount in amounts:
+#         current = remaining[:amount]
+#         remaining = remaining[amount:]
+#         parts.append(current)
+#     assert len(parts) == len(ratios)
+#     assert len(flattenLists(parts)) == len(l)
+#     return parts
+
+
+def ratioSplit(l, ratios):
+    """
+        This function split a list according to given ratios.
+        All parts will always have 1 element at least.
+        The sum of all ratios must be 1.0 and no ratio of 0 is allowed.
+    """
+    # We check values:
+    assert sum(ratios) > 1.0 - 0.0001 and sum(ratios) < 1.0 + 0.0001
+    assert len(l) >= len(ratios)
+    for ratio in ratios:
+        assert ratio > 0.0
+        assert ratio <= 1.0
+    if l is None or len(l) == 0:
+        return l
+    # Special case:
+    if ratios == [1.0]:
+        return [l]
+    # We create all parts:
+    previousIndex = 0
+    parts = []
+    # remainingElements = len(l)
+    for i in range(len(ratios)):
+        ratio = ratios[i]
+        s = int(len(l) * ratio)
+        if s == 0:
+            s = 1
+        s += previousIndex
+        if s > len(l) or len(ratios) - i - 1 == 0:
+            s = len(l)
+        while len(l) - s < len(ratios) - i - 1: # remaining elements < remaining parts to create
+            s -= 1
+        part = l[previousIndex:s]
+        parts.append(part)
+        previousIndex = s
+        # remainingElements -= len(part)
+    # Finally we check the result:
+    for current in parts:
+        assert current is not None and len(current) > 0
+    assert len(parts) == len(ratios)
+    assert len(flattenLists(parts)) == len(l)
+    # And return it:
+    return parts
 
 def split(l, n):
     """

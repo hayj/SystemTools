@@ -11,8 +11,8 @@ from systemtools import basics
 from systemtools.basics import *
 
 # The level allow the unit test execution to choose only the top level test
-mini = 8
-maxi = 9
+mini = 10
+maxi = 15
 assert mini <= maxi
 
 print("==============\nStarting unit tests...")
@@ -274,6 +274,62 @@ if mini <= 9 <= maxi:
             check(expected, got)
 
 
+
+if mini <= 10 <= maxi:
+    class Test10(unittest.TestCase):
+        def test1(self):
+            gotException = False
+            try:
+                ratioSplit(["e"] * 11, [0.8, 0.1, 0.1])
+                ratioSplit(["e"] * 12, [0.8, 0.1, 0.1])
+                ratioSplit(["e"] * 16, [0.8, 0.1, 0.1])
+            except: gotException = True
+            self.assertTrue(not gotException)
+
+
+            l = [1, 2, 3, 4, 5]
+            self.assertTrue(ratioSplit(l, [0.05, 0.05, 0.9]) == [[1], [2], [3, 4, 5]])
+            self.assertTrue(ratioSplit(l, [0.9, 0.05, 0.05]) == [[1, 2, 3], [4], [5]])
+            self.assertTrue(ratioSplit(l, [0.4, 0.6]) == [[1, 2], [3, 4, 5]])
+            self.assertTrue(ratioSplit(l, [0.6, 0.4]) == [[1, 2, 3], [4, 5]])
+
+            l = [1, 2, 3, 4]
+            self.assertTrue(ratioSplit(l, [0.4, 0.2, 0.3, 0.1]) == [[1], [2], [3], [4]])
+            self.assertTrue(ratioSplit(l, [0.1, 0.1, 0.8]) == [[1], [2], [3, 4]])
+            self.assertTrue(ratioSplit(l, [0.9, 0.1]) == [[1, 2, 3], [4]])
+            self.assertTrue(ratioSplit(l, [0.5, 0.5]) == [[1, 2], [3, 4]])
+            self.assertTrue(ratioSplit(l, [1.0]) == [[1, 2, 3, 4]])
+            self.assertTrue(ratioSplit(l, [0.8, 0.2]) == [[1, 2, 3], [4]])
+
+            gotException = False
+            try:
+                ratioSplit([1], [1.0, 0.2])
+            except: gotException = True
+            self.assertTrue(gotException)
+
+            gotException = False
+            try:
+                ratioSplit([1, 2], [0.5, 0.2, 0.3])
+            except: gotException = True
+            self.assertTrue(gotException)
+
+            gotException = False
+            try:
+                ratioSplit([1, 2], [0.5, 0.2, 0.3])
+            except: gotException = True
+            self.assertTrue(gotException)
+
+            gotException = False
+            try:
+                ratioSplit([1, 2], [0.5, 0.2])
+            except: gotException = True
+            self.assertTrue(gotException)
+
+            l = list(range(10))
+            self.assertTrue(ratioSplit(l, [0.1] * 10) == [[i] for i in range(10)])
+
+
+            
 
 
 if __name__ == '__main__':

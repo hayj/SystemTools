@@ -42,7 +42,16 @@ from systemtools.enumeration import *
 import copy
 import threading
 
-
+def leavesCount(struct):
+    if struct is None:
+        return 0
+    elif not isArrayOrList(struct):
+        return 1
+    else:
+        count = 0
+        for current in struct:
+            count += leavesCount(current)
+        return count
 
 # class AgainAndAgain():
 #     # https://www.reddit.com/r/Python/comments/40idba/easy_way_to_make_an_iterator_from_a_generator_in/

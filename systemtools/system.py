@@ -410,6 +410,11 @@ def argvOptionsToDict(argv=None):
 #     print optionIndexes
 
 def html2png(urlOrPath, destPath=None, width=None, height=None):
+    """
+        If this function doesn't word, try firefox command line.
+        If there are an old firefox profile error, just do
+        `rm -rf ~/.mozilla` if you are in a docker container...`
+    """
     assert urlOrPath is not None
     if not urlOrPath.startswith("htt") and not urlOrPath.startswith("file"):
         urlOrPath = "file://" + urlOrPath
@@ -428,6 +433,19 @@ def html2png(urlOrPath, destPath=None, width=None, height=None):
     command = start + " " + destPath + " " + urlOrPath + " " + size
     bash(command, verbose=False)
     return destPath
+
+
+def installSent2Vec():
+    try:
+        import sent2vec
+    except:
+        # from systemtools.system import bash
+        bash("pip install Cython")
+        bash("git clone https://github.com/epfml/sent2vec.git")
+        bash("pip install ./sent2vec/")
+        remove("sent2vec")
+        import sent2vec
+
 
 
 def cropPNG(path, dst=None):

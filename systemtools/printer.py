@@ -55,6 +55,13 @@ def reduceBlank(text, keepNewLines=False):
 
 def bp(obj, level='auto', logger=None, verbose=True, **kwargs):
 	try:
+		if isinstance(level, Logger):
+			theLogger = level
+			if logger is None:
+				level = 'auto'
+			else:
+				level = logger
+			logger = theLogger
 		text = b(obj, level=level, logger=logger, verbose=verbose, **kwargs)
 		log(text, logger=logger, verbose=verbose)
 	except Exception as e:

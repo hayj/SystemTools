@@ -120,7 +120,7 @@ def parseNumber(text):
     return None
 
 
-def truncateFloat(f, n):
+def truncateFloat(f, n=2):
     '''Truncates/pads a float f to n decimal places without rounding'''
     s = '{}'.format(f)
     if 'e' in s or 'E' in s:

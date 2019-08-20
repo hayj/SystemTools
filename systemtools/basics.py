@@ -41,6 +41,7 @@ import itertools
 from systemtools.enumeration import *
 import copy
 import threading
+from collections import Iterable
 
 def leavesCount(struct):
     if struct is None:
@@ -66,7 +67,33 @@ def leavesCount(struct):
 # class Gen2Iter(AgainAndAgain):
 #     pass
 
+def combine(voc, digits, strConcat=False):
+    def __combine(l1, l2):
+        keys = []
+        for a in l1:
+            for b in l2:
+                if strConcat:
+                    keys.append(str(a) + str(b))
+                else:
+                    keys.append(magicFlatten([a, b]))
+        return keys
+    if digits == 0:
+        raise Exception("Cannot combine 0 elements")
+    elif digits == 1:
+        result = []
+        for current in voc:
+            result.append([current])
+        return result
+    keys = voc
+    digits -= 1
+    for i in range(digits):
+        keys = __combine(keys, voc)
+    return keys
+
 def shuffle(data, inplace=False):
+    """
+        TODO seed param
+    """
     if not inplace:
         data = copy.deepcopy(data)
     random.shuffle(data)
@@ -137,6 +164,20 @@ def dictSelect(theDict, keys):
         This function take a dict and return a new dict with only slectionned keys
     """
     return dict((k, theDict[k]) for k in keys if k in theDict)
+
+
+def magicFlatten(*args, **kwargs):
+    return list(magicFlattenYielder(*args, **kwargs))
+def magicFlattenYielder(items):
+    """Yield items from any nested iterable; see Reference."""
+    # https://stackoverflow.com/questions/952914/how-to-make-a-flat-list-out-of-list-of-lists?page=1&tab=votes#tab-top
+    for x in items:
+        if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
+            for sub_x in magicFlattenYielder(x):
+                yield sub_x
+        else:
+            yield x
+
 
 def flattenLists(lists):
     """

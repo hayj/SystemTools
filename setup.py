@@ -63,19 +63,23 @@ if os.path.isdir(packagePath):
 # thelib = importlib.import_module(mainPackageName)
 
 # Readme content:
-readme = None
-readmePath = thelibFolder + '/README.md'
-if os.path.isfile(readmePath):
-    try:
-        print("Trying to convert README.md to rst format...")
-        import pypandoc
-        readme = pypandoc.convert(readmePath, 'rst')
-    except(IOError, ImportError) as e:
-        print(e)
-        print("Cannot use pypandoc to convert the README...")
-        readme = open(readmePath).read()
-else:
-    print("README.md not found.")
+with open(thelibFolder + '/README.rst', "r") as fh:
+    readme = fh.read()
+# readme = None
+# readmePath = thelibFolder + '/README.md'
+# if os.path.isfile(readmePath):
+#     try:
+#         print("Trying to convert README.md to rst format...")
+#         import pypandoc
+#         readme = pypandoc.convert(readmePath, 'rst')
+#         # with open(readmePath, "r") as fh:
+#         #     readme = fh.read()
+#     except(IOError, ImportError) as e:
+#         print(e)
+#         print("Cannot use pypandoc to convert the README...")
+#         readme = open(readmePath).read()
+# else:
+#     print("README.md not found.")
 
 
 # The whole setup:
@@ -117,7 +121,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Utilities",
     ],
 

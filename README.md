@@ -1,7 +1,7 @@
 
 # SystemTools
 
-This project gathers some useful Python functions and class. We organized them in different modules:
+This project gathers some useful Python functions and classes. We organized them in different modules:
 
  * **systemtools.duration**
  * **systemtools.logger**
@@ -13,7 +13,27 @@ This project gathers some useful Python functions and class. We organized them i
 
 To install all:
 
-	pip install hjsystemtools
+	pip install systools
+
+
+## systemtools.printer
+
+This module provide function that beautiful print variables.
+
+	>>> from systemtools.printer import *
+	>>> bp(['Some text lorem ipsum dolor sit amet', {'a': 'This is some text that is short.', 'b': 'This is a longer text lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet.'}, 'Here an other text', 8, 9, [2, 3, 4, 5], 10, {1, 2, 3}])
+	[
+	  Some text lorem ipsum dolor sit amet,
+	  {
+	    a: This is some text that is short.,
+	    b: This is a longer text lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit am
+	  },
+	  ...,
+	  10,
+	  { 1, 2, 3 }
+	]
+
+You level as second argument (from 0 to 5) to set the verbosity of the print.
 
 ## systemtools.duration
 

@@ -25,6 +25,36 @@ from psutil import virtual_memory
 import traceback
 
 
+def pipFreeze(*grep, logger=None, verbose=False):
+    try:
+        try:
+            from pip._internal.operations import freeze
+        except ImportError:  # pip < 10.0
+            from pip.operations import freeze
+        x = list(freeze.freeze())
+        elements = set()
+        for currentGrep in grep:
+            print(currentGrep)
+            if currentGrep is None:
+                elements = elements.union(set(x))
+            else:
+                for p in x:
+                    if currentGrep in p:
+                        elements.add(p)
+        if verbose:
+            if logger is not None:
+                logger.log(str(elements))
+            else:
+                print(str(elements))
+        return elements
+    except Exception as e:
+        if verbose:
+            if logger is not None:
+                logger.log(str(e))
+            else:
+                print(str(e))            
+        return None
+
 
 def isPlatform(text):
     if text is None:

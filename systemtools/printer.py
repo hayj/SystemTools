@@ -55,17 +55,17 @@ def reduceBlank(text, keepNewLines=False):
 
 def bp(obj, level='auto', logger=None, verbose=True, **kwargs):
 	try:
-		if isinstance(level, Logger):
-			theLogger = level
+		if not (isinstance(level, str) or isinstance(level, int)):
 			if logger is None:
-				level = 'auto'
+				level, logger = "auto", level
+			elif isinstance(logger, str) or isinstance(logger, int):
+				level, logger = logger, level
 			else:
-				level = logger
-			logger = theLogger
+				raise Exception("You must give level as an int or str and logger as a logger or as an object which has logger in its attributes")
 		text = b(obj, level=level, logger=logger, verbose=verbose, **kwargs)
-		log(text, logger=logger, verbose=verbose)
-	except Exception as e:
-		logException(e, location="bp", logger=logger, verbose=verbose)
+		log(text, logger, verbose=verbose)
+	except Exception as e1:
+		logException(e1, logger, location="bp", verbose=verbose)
 
 def b(obj, level='auto', logger=None, verbose=True, **kwargs):
 	"""
@@ -79,6 +79,10 @@ def b(obj, level='auto', logger=None, verbose=True, **kwargs):
 		 * auto --> choose automatically params on-the-fly (~ level 2)
 	"""
 	try:
+		if isinstance(level, int) and level < 0:
+			level = 0
+		if isinstance(level, int) and level > 5:
+			level = 5
 		if level == 'auto':
 			level = 2
 		if level <= 1:
@@ -211,7 +215,7 @@ def __beautif\
 					value = obj[key]
 					(values, btype) = __beautif(value, **recKwargs)
 					values = innerMultilines(values, btype, tab, shift + tab)
-					result.append(quote + __bold(key) + quote + ": " + values + ",")
+					result.append(quote + __bold(str(key)) + quote + ": " + values + ",")
 				if len(keysParts) > 1 and keysPartsIndex != len(keysParts) - 1:
 					result.append("...,")
 			# We remove the comma:
@@ -339,5 +343,7 @@ def test2():
 	bp(row, maxDepth=3)
 
 
+
+
 if __name__ == '__main__':
-	test2()
+	test3()

@@ -82,7 +82,7 @@ else:
 setup(
 
     # The name for PyPi:
-    name="hjsystemtools",
+    name="systools", # systemtools, hjsystemtools
 
     # The version of the code which is located in the main __init__.py:
     version=version,

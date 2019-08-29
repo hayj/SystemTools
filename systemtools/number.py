@@ -40,8 +40,14 @@ def parseNumber(text):
         1190
         >>> parseNumber("$1 190.99")
         1190.99
+        >>> parseNumber("$-1 190.99")
+        -1190.99
         >>> parseNumber("1 000 000.3")
         1000000.3
+        >>> parseNumber('-151.744122')
+        -151.744122
+        >>> parseNumber('-1')
+        -1
         >>> parseNumber("1 0002,1.2")
         10002.1
         >>> parseNumber("")
@@ -60,7 +66,7 @@ def parseNumber(text):
 
     """
     try:
-        # First we return None if we don't have anything in the text:
+        # First we return None if we don't have something in the text:
         if text is None:
             return None
         if isinstance(text, int) or isinstance(text, float):
@@ -69,7 +75,7 @@ def parseNumber(text):
         if text == "":
             return None
         # Next we get the first "[0-9,. ]+":
-        n = re.search("[0-9]*([,. ]?[0-9]+)+", text).group(0)
+        n = re.search("-?[0-9]*([,. ]?[0-9]+)+", text).group(0)
         n = n.strip()
         if not re.match(".*[0-9]+.*", text):
             return None

@@ -44,7 +44,9 @@ def log(text, obj=None, logger=None, verbose=True, logtype=LOGTYPE.info):
         Else you can give it in params.
     """
     if obj is not None and isinstance(obj, Logger):
-        logger, obj = obj, None
+        logger, obj = obj, logger
+    if logger is not None and not isinstance(logger, Logger):
+        logger, obj = obj, logger
     if obj is not None:
         try:
             obj.logger

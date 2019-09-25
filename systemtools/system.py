@@ -98,6 +98,8 @@ def exec(commands, doPrint=True, useBuiltin=False, logger=None, verbose=True):
         script = ""
         if isFile(homeDir() + "/.bashrc"):
             script += "source ~/.bashrc" + "\n"
+        if isFile(homeDir() + "/.hjbashrc"):
+            script += "source ~/.hjbashrc" + "\n"
         if isFile(homeDir() + "/.bash_profile"):
             script += "source ~/.bash_profile" + "\n"
         if isFile(homeDir() + "/.bash_aliases"):

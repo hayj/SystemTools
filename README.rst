@@ -239,7 +239,7 @@ This module gathers some useful basics functions.
   * **floatAsReadable**\ : Convert a float to a readable string without "e-X".
   * **sortByKey(d)**\ : Sort a dict by the key. Return an ``OrderedDict``.
   * **sortBy(l, desc=False, index=1)**\ : Sort a list of tuple (or an itemized dict) by the specific index given in parameters.
-  * **chunks(l, n)**\ : return a list of list (of len n) from ``l``. You can also use ``chunksYielder``.
+  * **chunks(l, n)**\ : return a list of lists (of len n) from ``l``. You can also use ``chunksYielder``.
   * **split(l, n)**\ : split a list in n parts.
   * **splitMaxSized(l, batchMaxSize)**\ : Split a list in multiple parts in such a way that each part has a max size of batchMaxSize.
   * **normalize(l)**\ : Normalize (between 0.0 and 1.0) all elements of a list according to the sum of all elements.

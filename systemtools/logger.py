@@ -11,6 +11,7 @@ from systemtools.file import *
 from enum import Enum
 import traceback
 import smtplib
+import unidecode
 
 
 LOGTYPE = Enum('LOGTYPE', 'error info warning')
@@ -136,7 +137,7 @@ class Logger():
 
 
 
-def notif(subject, content="", to=None, logger=None, verbose=True, name='HJWeb Watcher', sender='hjwebwatcher@gmail.com', password=None, test=False):
+def notif(subject, content="", to=None, logger=None, verbose=True, name='HJWeb Watcher', sender='hjwebwatcher@gmail.com', password=None, doPrint=False, test=False, doStripAccents=True):
     if not isinstance(subject, str):
         subject = lts(subject)
     if not isinstance(content, str):
@@ -167,8 +168,12 @@ Subject: %s
 
 %s
 """ % (name, sender, toName, to, subject, content)
+        if doStripAccents:
+            email = unidecode.unidecode(email)
+        if doPrint and not test:
+            log(subject + "\n" + content, logger, verbose=verbose)
         if test:
-            log(email, logger, verbose=verbose)
+            log("<TEST MODE>\n" + subject + "\n" + content, logger, verbose=verbose)
         else:
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
             server.ehlo()

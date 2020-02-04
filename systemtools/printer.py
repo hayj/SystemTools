@@ -125,8 +125,6 @@ def b(obj, level='auto', logger=None, verbose=True, **kwargs):
 		logException(e, location="b", logger=logger, verbose=verbose)
 
 
-
-
 def beautif(*args, tab="  ", **kwargs):
 	(values, btype) = __beautif(*args, tab=tab, **kwargs)
 	return innerMultilines(values, btype, tab, "")

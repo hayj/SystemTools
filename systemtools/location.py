@@ -14,7 +14,9 @@ from pathlib import Path
 import socket
 from systemtools.number import digitalizeIntegers
 from operator import itemgetter
-import pwd
+try:
+    import pwd
+except: pass
 from systemtools import config as systConf
 
 def decomposePath(path):
@@ -331,7 +333,7 @@ def dataPath(defaultDirName="Data"):
     if isDir("/NoSave"):
         return "/NoSave/Data"
     elif isDir(homeDir() + "/NoSave"):
-        return "/users/modhel-nosave/hayj/" + defaultDirName
+        return "/users/lahdak-nosave/hayj/" + defaultDirName
     else:
         return homeDir() + "/" + defaultDirName
 
@@ -345,7 +347,6 @@ def owner(filename):
     try:
         return pwd.getpwuid(os.stat(filename).st_uid).pw_name
     except Exception as e:
-        print(e)
         return None
 
 if __name__ == '__main__':

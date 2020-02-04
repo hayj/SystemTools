@@ -300,7 +300,23 @@ def freeRAM():
     """
         return the actual free ram space in Go
     """
-    return truncateFloat(psutil.virtual_memory().free / (1*(10**9)), 2)
+    return truncateFloat(psutil.virtual_memory().available / (1*(10**9)), 2)
+
+def warnFreeRAM(logger=None, verbose=True):
+    if verbose:
+        fr = freeRAM()
+        msg = str(fr) + "g of RAM remaining."
+        if logger is None:
+            print(msg)
+        else:
+            logger.log(msg)
+        if fr < 2:
+            msg = "WARNING: the remaining RAM is very low!"
+            if logger is None:
+                print(msg)
+            else:
+                logger.log(msg)
+
 
 def usedRAM():
     return truncateFloat(psutil.virtual_memory().used / (1*(10**9)), 2)

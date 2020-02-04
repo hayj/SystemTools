@@ -65,14 +65,15 @@ class TicToc():
     """
         This class provide 2 methods to print time during an execution
     """
-    def __init__(self, verbose=True, logger=None, marker="-->", msgSeparator=" | message: ", maxDecimal=2):
+    def __init__(self, verbose=True, logger=None, marker="-->", msgSeparator=" | message: ", maxDecimal=2, doWarnFreeRAM=False):
         self.verbose = verbose
         self.logger = logger
-        self.startTime = None;
-        self.previousTime = None;
-        self.marker = marker;
-        self.msgSeparator = msgSeparator;
-        self.maxDecimal = maxDecimal;
+        self.startTime = None
+        self.previousTime = None
+        self.marker = marker
+        self.msgSeparator = msgSeparator
+        self.maxDecimal = maxDecimal
+        self.doWarnFreeRAM = doWarnFreeRAM
 
     def setMaxDecimal(self, maxDecimal):
         self.maxDecimal = maxDecimal;
@@ -290,7 +291,7 @@ class ProgressBar:
             if not self.extraMessageOnTheLeft:
                 if extraMessage is not None:
                     text += " " + str(extraMessage)
-            if self.canCleanOutput:
+            if self.canCleanOutput and self.verbose:
                 print(text, end="\r")
             else:
                 log(text, self)
@@ -317,7 +318,7 @@ class ProgressBar:
         if extraMessage is not None:
             text += " " + str(extraMessage)
         text += " (total duration: " + totalDurationText + ", mean duration: " + meanDurationText + ")"
-        if self.canCleanOutput:
+        if self.canCleanOutput and self.verbose:
             print(text, end="\r")
             print()
         else:

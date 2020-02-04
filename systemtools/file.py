@@ -18,6 +18,7 @@ try:
 except: pass
 import bz2
 import getpass
+import codecs
 
 
 def getHumanSize(path):
@@ -65,19 +66,24 @@ class TIMESPENT_UNIT(Enum):
     HOURS = 2
     MINUTES = 3
     SECONDS = 4
-def getLastModifiedTimeSpent(path, timeSpentUnit=TIMESPENT_UNIT.HOURS):
-    diff = time.time() - os.path.getmtime(path)
-    if timeSpentUnit == TIMESPENT_UNIT.SECONDS:
-        return diff
-    diff = diff / 60.0
-    if timeSpentUnit == TIMESPENT_UNIT.MINUTES:
-        return diff
-    diff = diff / 60.0
-    if timeSpentUnit == TIMESPENT_UNIT.HOURS:
-        return diff
-    diff = diff / 24.0
-    if timeSpentUnit == TIMESPENT_UNIT.DAYS:
-        return diff
+def getLastModifiedTimeSpent(path, timeSpentUnit=TIMESPENT_UNIT.HOURS, logger=None, verbose=True):
+    try:
+        diff = time.time() - os.path.getmtime(path)
+        if timeSpentUnit == TIMESPENT_UNIT.SECONDS:
+            return diff
+        diff = diff / 60.0
+        if timeSpentUnit == TIMESPENT_UNIT.MINUTES:
+            return diff
+        diff = diff / 60.0
+        if timeSpentUnit == TIMESPENT_UNIT.HOURS:
+            return diff
+        diff = diff / 24.0
+        if timeSpentUnit == TIMESPENT_UNIT.DAYS:
+            return diff
+    except Exception as e:
+        if logger is not None and verbose:
+            logger.log(str(e))
+    return 0
 
 def purgeOldFiles(pattern, maxTimeSpent, timeSpentUnit=TIMESPENT_UNIT.SECONDS):
     allPlugins = sortedGlob(pattern)
@@ -107,10 +113,16 @@ def strToFilename(text):
 def serialize(obj, path):
     with open(path, 'wb') as handle:
         pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 def deserialize(path):
     with open(path, 'rb') as handle:
         return pickle.load(handle)
+
+def serializeToStr(obj):
+    # https://stackoverflow.com/questions/30469575/how-to-pickle-and-unpickle-to-portable-string-in-python-3
+    return codecs.encode(pickle.dumps(obj), "base64").decode()
+def deserializeFromStr(obj):
+    return pickle.loads(codecs.decode(obj.encode(), "base64"))
+
 
 def copyDir(src, dst):
     if not (src.startswith("/") and src.startswith("/")):
@@ -127,7 +139,14 @@ def copyDir(src, dst):
     return copy_tree(src, dst + "/" + dirName)
 
 def copyFile(src, dst):
-    return shutil.copyfile(src, dst)
+    """
+        Copy the file src to the file or directory dst. If dst is a directory, a file with the same basename as src is created (or overwritten) in the directory specified. Permission bits are copied. src and dst are path names given as strings.
+
+        This function doesn't work when you give a file as the dst....
+
+        WARNING `copyfile` function doc: dst must be the complete target file name; look at shutil.copy() for a copy that accepts a target directory path
+    """
+    return shutil.copy(src, dst)
 
 def getAllNumbers(text):
     """
@@ -363,7 +382,6 @@ def appendFile(text, path, addBreakLine=True):
 
 
 
-
 def strListToFile(*args, **kwargs):
     strToFile(*args, **kwargs)
 def strToFile(text, path):
@@ -572,32 +590,46 @@ def testSizeHumanSize():
     print(getSize(path, humanReadable=True, unit='m'))
     print(getHumainSize(path))
 
-def clearRtmp\
+def clearRtmp(*args, **kwargs):
+    return cleanRtmp(*args, **kwargs)
+def cleanRtmp(*args, **kwargs):
+    if len(args) == 0:
+        args = ("/tmp",)
+    return cleanDir(*args, **kwargs)
+
+def cleanDir\
 (
-    rtmpLocation="/tmp",
+    path,
     startsWith=None,
+    endsWith=None,
     olderHour=4,
     onlyOwner=True,
     verbose=False,
     logger=None,
     dryRun=False,
+    removeKwargs={},
+    pathContains="/tmp" # For security purpose
 
 ):
     me = getpass.getuser()
     elementsToDelete = []
-    for element in sortedGlob(rtmpLocation + "/*"):
+    for element in sortedGlob(path + "/*"):
         if onlyOwner and owner(element) != me:
             continue
-        if olderHour is not None and getLastModifiedTimeSpent(element, timeSpentUnit=TIMESPENT_UNIT.HOURS) < olderHour:
+        if olderHour is not None and getLastModifiedTimeSpent(element, timeSpentUnit=TIMESPENT_UNIT.HOURS, logger=logger, verbose=False) < olderHour:
             continue
         if startsWith is not None and not decomposePath(element)[3].startswith(startsWith):
             continue
+        if endsWith is not None and not decomposePath(element)[3].endswith(endsWith):
+            continue
         elementsToDelete.append(element)
     for element in elementsToDelete:
-        if element.startswith("/tmp"):
+        if pathContains in element:
             try:
                 if not dryRun:
-                    remove(element, secure=False)
+                    if "secure" not in removeKwargs:
+                        removeKwargs["secure"] = False
+                    remove(element, **removeKwargs)
                 if verbose:
                     msg = "We removed " + element
                     if logger is not None:
@@ -627,11 +659,6 @@ if __name__ == '__main__':
 #     text = decryptFile(homeDir() + '/tmp/titi.txt', key)
 #
 #     print(text)
-
-    clearRtmp(startsWith="tmp", olderHour=4, verbose=True)
-
-
-
-
+    cleanDir(tmpDir(), startsWith=None, olderHour=4, verbose=True, dryRun=True)
 
 

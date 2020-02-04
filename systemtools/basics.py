@@ -43,6 +43,24 @@ import copy
 import threading
 from collections import Iterable
 
+
+def hasLetter(text):
+    if text is None:
+        return False
+    return re.search("[a-zA-Z]", text) is not None
+def hasNonLetter(text):
+    if text is None:
+        return False
+    return re.search("[^a-zA-Z]", text) is not None
+def hasUpperLetter(text):
+    if text is None:
+        return False
+    return re.search("[A-Z]", text) is not None
+def hasLowerLetter(text):
+    if text is None:
+        return False
+    return re.search("[a-z]", text) is not None
+
 def leavesCount(struct):
     if struct is None:
         return 0
@@ -183,6 +201,8 @@ def flattenLists(lists):
     """
         This function takes sentences and return the concatenation of them
     """
+    if lists is None or len(lists) == 0:
+        return lists
     return list(itertools.chain.from_iterable(lists))
 
 def mergeDuplicates(dups):
@@ -1427,16 +1447,14 @@ def split(l, n):
     """
     if l is None:
         return []
-#     avg = len(l) / float(n)
-#     out = []
-#     last = 0.0
-#
-#     while last < len(l):
-#         out.append(l[int(last):int(last + avg)])
-#         last += avg
-#
-#     return out
-    return [l[i::n] for i in range(n)]
+    avg = len(l) / float(n)
+    out = []
+    last = 0.0
+    while last < len(l):
+        out.append(l[int(last):int(last + avg)])
+        last += avg
+    return out
+    # return [l[i::n] for i in range(n)] # This doesn't keep the order
 
 def associate(keys, values, shift=0):
     shift = shift % len(values)
@@ -1488,6 +1506,16 @@ def objectAsKey(o):
         o = list(sortByKey(o).items())
         return objectAsKey(o)
     return str(o)
+
+def fromCSVFileYielder(path):
+    import csv
+    with open(path, mode='r') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        line_count = 0
+        for row in csv_reader:
+            yield row
+def fromCSVFile(*args, **kwargs):
+    return list(fromCSVFileYielder(*args, **kwargs))
 
 if __name__ == '__main__':
     o = [1, {"c": {"a", 1, "t"}, "b": [2, 1], "a": "t"}, {}, [], None]

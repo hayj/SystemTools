@@ -76,7 +76,7 @@ def logWithLogger(text, logger, logtype):
 
 
 class Logger():
-    def __init__(self, outputPath="output.log", moWeightMax=1, prefix=None, remove=False):
+    def __init__(self, outputPath="output.log", moWeightMax=1, prefix=None, remove=False, doPrint=True):
         self.prefix = prefix
         if self.prefix is None:
             self.prefix = ""
@@ -103,11 +103,18 @@ class Logger():
         logger.addHandler(file_handler)
         # création d'un second handler qui va rediriger chaque écriture de log
         # sur la console
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.DEBUG)
-        logger.addHandler(stream_handler)
+        if doPrint:
+            stream_handler = logging.StreamHandler()
+            stream_handler.setLevel(logging.DEBUG)
+            logger.addHandler(stream_handler)
         # We store the logger:
         self.logger = logger
+
+    def remove(self, minSlashCount=3):
+        if isFile(self.outputPath):
+            remove(self.outputPath, minSlashCount=minSlashCount)
+        if isFile(self.outputPath + ".1"):
+            remove(self.outputPath, minSlashCount=minSlashCount)
 
     def prefixText(self, text):
         return self.prefix + str(text)
@@ -186,5 +193,16 @@ Subject: %s
         logException(e, logger, verbose=verbose)
         logError("You probaly have to log to your gmail account and allow recent access. Or connect to https://accounts.google.com/b/0/DisplayUnlockCaptcha and click continue (WARNING: choose the right user after the link redirection by setting the user number of your browser (\"/b/0\" correspond to the first logged user in your browser))")
 
+def test1():
+    logger = Logger(tmpDir("teeeest") + "/aaa.txt", doPrint=False)
+    for i in range(1000000):
+        log(getRandomStr(), logger)
+
 if __name__ == '__main__':
-    notif("ccc")
+    test1()
+
+
+
+
+
+

@@ -200,7 +200,40 @@ def getFirstNumber(text, *args, **kwargs):
         return result[0]
     return None
 
+def representsFloat(text):
+    """
+        This function return True if the given param (string or float) represents a float
 
+        :Example:
+        >>> representsFloat("1.0")
+        True
+        >>> representsFloat("1")
+        False
+        >>> representsFloat("a")
+        False
+        >>> representsFloat(".0")
+        False
+        >>> representsFloat("0.")
+        False
+        >>> representsFloat("0.000001")
+        True
+        >>> representsFloat("00000.000001")
+        True
+        >>> representsFloat("0000a0.000001")
+        False
+    """
+    if isinstance(text, float):
+        return True
+    elif text is None:
+        return False
+    elif isinstance(text, str):
+        if len(text) < 3:
+            return False
+        text = text.strip()
+        return re.search("^[0-9]{1,}\.[0-9]{1,}$", text) is not None
+    else:
+        return False
+    
 
 
 def representsInt(s, acceptRoundedFloats=False):

@@ -8,3 +8,4 @@ pathlib
 tabulate
 requests
 xtract
+unidecode

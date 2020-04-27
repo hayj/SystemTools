@@ -24,7 +24,6 @@ import hashlib
 import unicodedata
 import random
 import re
-import string
 from systemtools.location import enhanceDir, getExecDir
 from datetime import datetime
 import parsedatetime
@@ -43,6 +42,10 @@ import copy
 import threading
 from collections import Iterable
 
+
+
+def strToInt(text):
+    return sum([ord(e) for e in text])
 
 def hasLetter(text):
     if text is None:
@@ -85,6 +88,32 @@ def leavesCount(struct):
 # class Gen2Iter(AgainAndAgain):
 #     pass
 
+def dictCombinasons(values, remainingKeys=None):
+    """
+        Return all combinasons of values.
+        For exemple `getCombs({'min_df': [1, 2], 'max_features': None})`
+        returns `[{'min_df': 1, 'max_features': None}, {'min_df': 2, 'max_features': None}]`
+}
+    """
+    if remainingKeys is None:
+        remainingKeys = list(values.keys())
+    elif len(remainingKeys) == 0:
+        return None
+    currentKey = remainingKeys.pop()
+    currentCombs = []
+    if not isinstance(values[currentKey], list):
+        values[currentKey] = [values[currentKey]]
+    for value in values[currentKey]:
+        currentCombs.append({currentKey: value})
+    underCombs = dictCombinasons(values, remainingKeys)
+    if underCombs is None:
+        return currentCombs
+    combs = []
+    for i in range(len(underCombs)):
+        for u in range(len(currentCombs)):
+            combs.append(mergeDicts(underCombs[i], currentCombs[u]))
+    return combs
+
 def combine(voc, digits, strConcat=False):
     def __combine(l1, l2):
         keys = []
@@ -108,13 +137,14 @@ def combine(voc, digits, strConcat=False):
         keys = __combine(keys, voc)
     return keys
 
-def shuffle(data, inplace=False):
-    """
-        TODO seed param
-    """
+def shuffle(data, inplace=False, seed=None):
+    if seed is None:
+        rd = random.Random()
+    else:
+        rd = random.Random(seed)
     if not inplace:
         data = copy.deepcopy(data)
-    random.shuffle(data)
+    rd.shuffle(data)
     return data
 
 def intByteSize(n):
@@ -532,6 +562,77 @@ def getRandomLastname(addInt=True, maxInt=100):
     if addInt:
         name = name + "-" + str(getRandomInt(0, maxInt))
     return name
+
+
+namesCacheSingleton = None
+lastnamesCacheSingleton = None
+namesEmailCacheSingleton = None
+lastnamesEmailCacheSingleton = None
+def getRandomPerson(addInt=True, minInt=10, maxInt=95000):
+    global namesCacheSingleton
+    global lastnamesCacheSingleton
+    global namesEmailCacheSingleton
+    global lastnamesEmailCacheSingleton
+    if namesCacheSingleton is None:
+        namesCacheSingleton = getNamesList(lastnames=False, doStripAccents=False, doLower=False, removeNonLetter=False, minChars=3, extra=True)
+        lastnamesCacheSingleton = getNamesList(lastnames=True, doStripAccents=False, doLower=False, removeNonLetter=False, minChars=3, extra=True)
+        namesEmailCacheSingleton = getNamesList(lastnames=False, doStripAccents=True, doLower=True, removeNonLetter=True, minChars=3, extra=True)
+        lastnamesEmailCacheSingleton = getNamesList(lastnames=True, doStripAccents=True, doLower=True, removeNonLetter=True, minChars=3, extra=True)
+        assert len(namesCacheSingleton) == len(namesEmailCacheSingleton)
+        assert len(lastnamesCacheSingleton) == len(lastnamesEmailCacheSingleton)
+    nameIndex = randint(0, len(namesCacheSingleton) - 1)
+    lastnameIndex = randint(0, len(lastnamesCacheSingleton) - 1)
+    name = namesCacheSingleton[nameIndex]
+    nameEmail = namesEmailCacheSingleton[nameIndex]
+    lastname = lastnamesCacheSingleton[lastnameIndex]
+    lastnameEmail = lastnamesEmailCacheSingleton[lastnameIndex]
+    result = {}
+    result['name'] = name
+    result['lastname'] = lastname
+    emailToken = nameEmail + '.' + lastnameEmail
+    if addInt:
+        emailToken += str(randint(minInt, maxInt))
+    result['email_token'] = emailToken
+    result['password'] = getRandomPassword()
+    result['birth_day'] = str(randint(1, 28))
+    result['birth_month'] = str(randint(1, 12))
+    result['birth_year'] = str(randint(1960, 1999))
+    return result
+
+
+def getNamesList(lastnames=False, doStripAccents=True, doLower=True, removeNonLetter=True, minChars=3, extra=False):
+    if lastnames:
+        namesPath = getExecDir(__file__) + "/data/fr-lastnames.txt"
+        namesPathExtra = getExecDir(__file__) + "/data/fr-lastnames-extra.txt"
+    else:
+        namesPath = getExecDir(__file__) + "/data/fr-names.txt"
+        namesPathExtra = getExecDir(__file__) + "/data/fr-names.txt"
+    names = []
+    with open(namesPath, 'r') as file:
+        names += file.read().split('\n')
+    if extra:
+        with open(namesPathExtra, 'r') as file:
+            names += file.read().split('\n')
+    namesSet = set()
+    newNames = []
+    for name in names:
+        allPrep = stripAccents(name)
+        allPrep = re.sub('[^a-zA-Z]', '', allPrep)
+        allPrep = allPrep.lower()
+        if len(allPrep) >= minChars and allPrep not in namesSet:
+            namesSet.add(allPrep)
+            if doStripAccents:
+                name = stripAccents(name)
+            if removeNonLetter:
+                name = re.sub('[^a-zA-Z]', '', name)
+            if doLower:
+                name = name.lower()
+            newNames.append(name)
+    names = newNames
+    return names
+
+
+
 
 namesSingleton = None
 def getRandomName(addInt=True, maxInt=100):
@@ -1155,8 +1256,6 @@ def deleteDuplicate(l):
     return list(set(l))
 
 
-
-
 def strCheck(value):
     return value is not None and isinstance(value, str) and len(value) > 0
 
@@ -1171,6 +1270,8 @@ def mergeDicts(*dict_args):
 #         if dictionary is not None:
 #             result.update(dictionary)
 #     return result
+    if dict_args is not None and len(dict_args) == 1 and isinstance(dict_args[0], list):
+        dict_args = dict_args[0]
     result = {}
     for dictionary in dict_args:
         if dictionary is not None:
@@ -1181,6 +1282,17 @@ def isFrenchDate(s):
     return re.match("^[0-3]\d/[0-1]\d/[1-2]\d{3}$", s) is not None
 
 DATE_FORMAT = Enum("DATE_FORMAT", "datetimeString datetime timestamp arrow arrowString humanize")
+
+def getDates(startYear, startMonth, startDay, endYear, endMonth, endDay):
+    from datetime import date, timedelta
+    sdate = date(startYear, startMonth, startDay) # start date
+    edate = date(endYear, endMonth, endDay) # end date
+    delta = edate - sdate # as timedelta
+    result = []
+    for i in range(delta.days + 1):
+        day = sdate + timedelta(days=i)
+        result.append(str(day))
+    return result
 
 def convertDate(readableDate=None, dateFormat=DATE_FORMAT.datetime):
     """
@@ -1456,14 +1568,74 @@ def split(l, n):
     return out
     # return [l[i::n] for i in range(n)] # This doesn't keep the order
 
-def associate(keys, values, shift=0):
-    shift = shift % len(values)
+
+
+def splitRatio(l, ratios):
+    assert sum(ratios) < 1.0001 and sum(ratios) > 0.9999
+    indexes = []
+    ratioCum = 0.0
+    for ratio in ratios:
+        ratioCum += ratio
+        indexes.append(int(len(l) * ratioCum))
+    parts = []
+    indexes = [0] + indexes
+    for i in range(1, len(indexes)):
+        parts.append(l[indexes[i-1]:indexes[i]])
+    assert len(flattenLists(parts)) == len(l)
+    return parts
+
+def associate(keys, values, multiValues=False, allowDuplicates=False, shift=0, logger=None, verbose=True, sortKeys=True, sortValues=True):
+    """
+        This function associate keys to values.
+        If you set multiValues as True, multiple values can ba associated to each key,
+        so the structure will be a dictionary of keys -> list of values.
+        If you set allowDuplicates to True (when multiValues is False), you will allow to associate
+        several time a value to keys, so each key will be used.
+    """
+    if not multiValues and len(values) > len(keys):
+        logWarning("Cannot associate values of size " + str(len(values))
+                   + " to keys of size " + str(len(keys))
+                   + ". You can set multiValues to True.", logger, verbose=verbose)
+    if multiValues and allowDuplicates:
+        raise Exception("You cannot set multiValues as True and allowDuplicates as True")
+    if not isinstance(keys, set):
+        newKeys = set(keys)
+        assert len(keys) == len(newKeys)
+        keys = newKeys
+    if sortKeys:
+        keys = sorted(list(keys))
+    else:
+        keys = list(keys)
+    if sortValues:
+        values = sorted(list(values))
+    else:
+        values = list(values)
+    if shift < 0:
+        shift = len(values) - shift
+    if shift > 0:
+        shift = shift % len(values)
+        values = values[shift:] + values[:shift]
     assoc = dict()
-    for key in keys:
-        assoc[key] = values[shift]
-        shift += 1
-        if shift == len(values):
-            shift = 0
+    if not multiValues:
+        i = 0
+        for key in keys:
+            if allowDuplicates:
+                assoc[key] = values[i]
+                i += 1
+                if i == len(values):
+                    i = 0
+            else:
+                assoc[key] = values.pop(0)
+                if len(values) == 0:
+                    break
+    else:
+        while len(values) > 0:
+            for key in keys:
+                if key not in assoc:
+                    assoc[key] = []
+                assoc[key].append(values.pop(0))
+                if len(values) == 0:
+                    break
     return assoc
 
 def dictToHash(*args, **kwargs):
@@ -1517,9 +1689,31 @@ def fromCSVFileYielder(path):
 def fromCSVFile(*args, **kwargs):
     return list(fromCSVFileYielder(*args, **kwargs))
 
+def getRandomPassword(*args, **kwargs):
+    return randomPassword(*args, **kwargs)
+def randomPassword(minChars=9, maxChars=15):
+    # import string, random
+    upper = list(string.ascii_uppercase)
+    lower = list(string.ascii_lowercase)
+    symbols = list('*_-&#!?+')
+    nbChars = randint(minChars, maxChars) - 3
+    chars = []
+    for i in range(nbChars):
+        chars.append(random.choice(upper + lower + symbols + lower + lower))
+    chars.append(random.choice(upper))
+    chars.append(random.choice(symbols))
+    chars = "".join(shuffle(chars))
+    chars = random.choice(upper) + chars
+    return chars
+
 if __name__ == '__main__':
-    o = [1, {"c": {"a", 1, "t"}, "b": [2, 1], "a": "t"}, {}, [], None]
-    print(reducedLTS(o, 4))
+    from systemtools.printer import bp
+    bp(getRandomPerson(), 5)
+    bp(getRandomPerson(), 5)
+    bp(getRandomPerson(), 5)
+    bp(getRandomPerson(), 5)
+    bp(getRandomPerson(), 5)
+    bp(getRandomPerson(), 5)
 
     # for i in range(1000):
     #     print(getRandomEmail(name="jean", lastname="aaaaa", providers=None))

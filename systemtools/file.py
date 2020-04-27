@@ -19,6 +19,7 @@ except: pass
 import bz2
 import getpass
 import codecs
+import gzip
 
 
 def getHumanSize(path):
@@ -111,11 +112,19 @@ def strToFilename(text):
     return ''.join(c for c in text if c in valid_chars)
 
 def serialize(obj, path):
-    with open(path, 'wb') as handle:
-        pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    if path.endswith(".gzip"):
+        with gzip.open(path, 'wb') as f:
+            pickle.dump(obj, f)
+    else:
+        with open(path, 'wb') as handle:
+            pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 def deserialize(path):
-    with open(path, 'rb') as handle:
-        return pickle.load(handle)
+    if path.endswith(".gzip"):
+        with gzip.open(path, 'rb') as f:
+            return pickle.load(f)
+    else:
+        with open(path, 'rb') as handle:
+            return pickle.load(handle)
 
 def serializeToStr(obj):
     # https://stackoverflow.com/questions/30469575/how-to-pickle-and-unpickle-to-portable-string-in-python-3
@@ -316,16 +325,18 @@ def remove(path, secure=True, minSlashCount=5, doRaise=True, skipDirs=False, ski
     return
 
 def removeIfExists(path):
-    print("DEPRECATED file or dir removal")
-    try:
-        os.remove(path)
-    except OSError as e: # this would be "except OSError, e:" before Python 2.6
-        if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
-            raise # re-raise exception if a different error occurred
+    # print("DEPRECATED file or dir removal")
+    # try:
+    #     os.remove(path)
+    # except OSError as e: # this would be "except OSError, e:" before Python 2.6
+    #     if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
+    #         raise # re-raise exception if a different error occurred
+    remove(path)
 def removeIfExistsSecure(path, slashCount=5):
-    print("DEPRECATED file or dir removal")
-    if path.count('/') >= slashCount:
-        removeIfExists(path)
+    # print("DEPRECATED file or dir removal")
+    # if path.count('/') >= slashCount:
+    #     removeIfExists(path)
+    remove(path, minSlashCount=slashCount)
 
 def removeDir(*args, **kwargs):
     print("DEPRECATED file or dir removal")
@@ -337,10 +348,11 @@ def removeDirSecure(*args, **kwargs):
     print("DEPRECATED file or dir removal")
     return removeTreeIfExistsSecure(*args, **kwargs)
 def removeTreeIfExistsSecure(path, slashCount=5):
-    print("DEPRECATED file or dir removal")
-    if path.count('/') >= slashCount:
-        return removeTreeIfExists(path)
-    return None
+    # print("DEPRECATED file or dir removal")
+    # if path.count('/') >= slashCount:
+    #     return removeTreeIfExists(path)
+    # return None
+    remove(path, minSlashCount=slashCount)
 
 def strListToTmpFile(theList, *args, **kwargs):
     text = ""
@@ -389,9 +401,8 @@ def strToFile(text, path):
 #         path, text = text, path
     if isinstance(text, list):
         text = "\n".join(text)
-    textFile = open(path, "w")
-    textFile.write(text)
-    textFile.close()
+    with open(path, "w") as f:
+        f.write(text)
 
 def normalizeNumericalFilePaths(globRegex):
     """

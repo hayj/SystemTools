@@ -15,10 +15,12 @@ from multiprocessing import Queue
 from threading import Thread
 
 class Timer:
-    def __init__(self, callback, interval, *args, sleepFirst=False, sleepCount=1000, **kwargs):
+    def __init__(self, callback, interval, *args, sleepFirst=False, sleepCount=1000, logger=None, verbose=True, **kwargs):
         """
             interval in seconds
         """
+        self.logger = logger
+        self.verbose = verbose
         self.sleepCount = sleepCount
         self.interval = interval
         self.callback = callback
@@ -47,14 +49,18 @@ class Timer:
             if self.firstExec and self.sleepFirst:
                 self.sleep()
             if self.isRunning():
-                self.callback(*self.args, **self.kwargs)
+                try:
+                    self.callback(*self.args, **self.kwargs)
+                except Exception as e:
+                    logException(e, self)
             self.sleep()
             self.firstExec = False
 
     def start(self):
-        self.firstExec = True
-        self.mainThread = Thread(target=self.run)
-        self.mainThread.start()
+        if self.stopped:
+            self.firstExec = True
+            self.mainThread = Thread(target=self.run)
+            self.mainThread.start()
 
     def stop(self):
         self.stopped = True
@@ -129,6 +135,8 @@ class TicToc():
         # else:
         #     print(text)
 
+def secondsToHumanReadable(*args, **kwargs):
+    return secondsToHumanReadableDuration(*args, **kwargs)
 def secondsToHumanReadableDuration(seconds):
     """
         :example:

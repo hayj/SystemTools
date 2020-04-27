@@ -23,6 +23,64 @@ from systemtools.file import *
 from systemtools.number import *
 from psutil import virtual_memory
 import traceback
+import requests
+
+def myIp(driver=None, ipUrl="https://api.ipify.org?format=json"):
+    try:
+        if driver is None:
+            data = requests.get(ipUrl).text
+        else:
+            data = driver.get(ipUrl).page_source
+        return re.search("\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}", data).group(0)
+    except:
+        return None
+
+def sshStats\
+(
+    address,
+    user=None,
+    timeout=6,
+    successToken='connection_success',
+):
+    """
+        This function return stats on a server.
+        https://askubuntu.com/questions/9487/whats-the-difference-between-load-average-and-cpu-load
+    """
+    if user is None:
+        user = getUser()
+    results = bash('timeout ' + str(timeout+1) + ' ssh -o BatchMode=yes -o ConnectTimeout=' + str(timeout) + ' ' + user + '@' + address + ' "echo ' + successToken + ' ; uptime ; nproc ; grep MemTotal /proc/meminfo ; grep MemAvailable /proc/meminfo"', doPrint=False)
+    if successToken in results:
+        results = results.split("\n")
+        for i in range(len(results)):
+            if "load average" in results[i]:
+                break
+        stats = dict()
+        try:
+            loadAverageLine = results[i]
+            numbers = getAllNumbers(loadAverageLine)
+            stats['1min_loadavg'] = numbers[-3]
+            stats['5min_loadavg'] = numbers[-2]
+            stats['15min_loadavg'] = numbers[-1]
+        except Exception as e:
+            print(e)
+        try:
+            stats['cpu_count'] = getFirstNumber(results[i+1])
+            stats['normalized_1min_loadavg'] = truncateFloat(stats['1min_loadavg'] / stats['cpu_count'], 3)
+            stats['normalized_5min_loadavg'] = truncateFloat(stats['5min_loadavg'] / stats['cpu_count'], 3)
+            stats['normalized_15min_loadavg'] = truncateFloat(stats['15min_loadavg'] / stats['cpu_count'], 3)
+        except Exception as e:
+            print(e)
+        try:
+            stats['mem_total'] = truncateFloat(getFirstNumber(results[i+2]) / 1e6, 2)
+        except Exception as e:
+            print(e)
+        try:
+            stats['mem_available'] = truncateFloat(getFirstNumber(results[i+3]) / 1e6, 2)
+        except Exception as e:
+            print(e)
+        return stats
+    else:
+        return None
 
 
 def pipFreeze(*grep, logger=None, verbose=False):

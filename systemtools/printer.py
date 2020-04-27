@@ -6,6 +6,7 @@ from enum import Enum
 from systemtools.logger import *
 from systemtools.number import truncateFloat
 from collections import OrderedDict
+import collections
 import re
 import numpy as np
 
@@ -224,7 +225,9 @@ def __beautif\
 			# We close the dict:
 			result.append('}')
 			return (result, BTYPE.dict)
-		elif isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
+		elif isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple) or isinstance(obj, collections.abc.KeysView):
+			if isinstance(obj, collections.abc.KeysView):
+				obj = set(obj)
 			isSet = isinstance(obj, set)
 			isTuple = isinstance(obj, tuple)
 			isList = isinstance(obj, list)

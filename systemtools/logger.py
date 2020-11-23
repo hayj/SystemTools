@@ -5,6 +5,7 @@
 
 import logging
 from logging.handlers import RotatingFileHandler
+from systemtools.location import *
 from systemtools.system import *
 from systemtools.basics import *
 from systemtools.file import *
@@ -76,11 +77,13 @@ def logWithLogger(text, logger, logtype):
 
 
 class Logger():
-    def __init__(self, outputPath="output.log", moWeightMax=1, prefix=None, remove=False, doPrint=True):
+    def __init__(self, outputPath=None, moWeightMax=1, prefix=None, remove=False, doPrint=True):
         self.prefix = prefix
         if self.prefix is None:
             self.prefix = ""
         self.outputPath = outputPath
+        if self.outputPath is None:
+            self.outputPath = tmpDir() + "/noname.log"
         self.moWeightMax = moWeightMax
         self.randomName = getRandomStr()
         # Now we remove the previous log file:

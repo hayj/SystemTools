@@ -42,7 +42,29 @@ import copy
 import threading
 from collections import Iterable
 
+def padAndTruncateFloat(score, n):
+    score = str(score)
+    if len(score) > n:
+        score = score[:n]
+    if len(score) < n:
+        score += "0" * abs(len(score) - n)
+    return score
 
+def fieldCounts(l, field, logger=None, verbose=False):
+    counts = dict()
+    for current in l:
+        if field in current:
+            if current[field] not in counts:
+                counts[current[field]] = 0
+            counts[current[field]] += 1
+    if len(counts) == 0:
+        if verbose:
+            print("No data for field " + str(field))
+    else:
+        for field, count in counts.items():
+            if verbose:
+                print(str(field) + ": " + str(count))
+    return counts
 
 def strToInt(text):
     return sum([ord(e) for e in text])
@@ -1593,9 +1615,12 @@ def associate(keys, values, multiValues=False, allowDuplicates=False, shift=0, l
         several time a value to keys, so each key will be used.
     """
     if not multiValues and len(values) > len(keys):
-        logWarning("Cannot associate values of size " + str(len(values))
-                   + " to keys of size " + str(len(keys))
-                   + ". You can set multiValues to True.", logger, verbose=verbose)
+        if verbose:
+            message = "Cannot associate values of size " + str(len(values)) + " to keys of size " + str(len(keys)) + ". You can set multiValues to True."
+            if logger is None:
+                print(message)
+            else:
+                logger.log(message)
     if multiValues and allowDuplicates:
         raise Exception("You cannot set multiValues as True and allowDuplicates as True")
     if not isinstance(keys, set):

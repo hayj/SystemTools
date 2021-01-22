@@ -9,7 +9,7 @@ import re
 description = "This project gathers some useful basics Python functions and class."
 author = "hayj"
 author_email = "hj@hayj.fr"
-version = "0.1.0" # replaced by the version in the main init file if exists
+version = None # will be replaced by the version in the main init file if exists
 
 # Current dir:
 thelibFolder = os.path.dirname(os.path.realpath(__file__))
@@ -81,6 +81,7 @@ with open(thelibFolder + '/README.rst', "r") as fh:
 # else:
 #     print("README.md not found.")
 
+assert version is not None
 
 # The whole setup:
 setup(

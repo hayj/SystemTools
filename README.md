@@ -17,6 +17,10 @@ To install all:
 	pip install systools
 
 
+Optionnal requirement:
+
+	github.com/Pithikos/winlaunch.git
+
 ## systemtools.printer
 
 This module provide function that beautiful print variables.

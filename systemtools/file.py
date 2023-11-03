@@ -1,42 +1,54 @@
 # pew in st-venv python ~/Workspace/Python/Utils/SystemTools/systemtools/file.py
 
-import os, errno
-import shutil
-import re
-import time
-from enum import Enum
+import errno
+import os
 import pickle
+import re
+import shutil
 import string
-from systemtools.location import isFile, getDir, isDir, sortedGlob, decomposePath, tmpDir, homeDir, owner
+import subprocess
+import time
+import zipfile
+from enum import Enum
+
 from systemtools.basics import getRandomStr, printLTS
+from systemtools.location import (decomposePath, getDir, homeDir, isDir,
+                                  isFile, owner, sortedGlob, tmpDir)
 from systemtools.number import *
-import subprocess, zipfile
-from distutils.dir_util import copy_tree
+
+try:
+    from distutils.dir_util import copy_tree
+except:
+    pass
 import requests
+
 try:
     import xtract
-except: pass
+except:
+    pass
 import bz2
-import getpass
 import codecs
+import getpass
 import gzip
 
 
 def getHumanSize(path):
-    return getSize(path, unit='auto', humanReadable=True)
+    return getSize(path, unit="auto", humanReadable=True)
 
-def getSize(path, unit='b', humanReadable=False, decimal=2):
+
+def getSize(path, unit="b", humanReadable=False, decimal=2):
     def __convertSize(size, unit):
         unit = unit.lower()
-        if unit in ['k', 'ko', 'kilo']:
+        if unit in ["k", "ko", "kilo"]:
             size = size / 1024
-        elif unit in ['m', 'mo', 'mega']:
+        elif unit in ["m", "mo", "mega"]:
             size = size / 1024 / 1024
-        elif unit in ['g', 'go', 'giga']:
+        elif unit in ["g", "go", "giga"]:
             size = size / 1024 / 1024 / 1024
-        else: # unit in ['b', 'bytes']
+        else:  # unit in ['b', 'bytes']
             pass
         return size
+
     size = None
     if isFile(path):
         size = os.path.getsize(path)
@@ -44,11 +56,11 @@ def getSize(path, unit='b', humanReadable=False, decimal=2):
     elif isDir(path):
         totalSize = 0
         for current in sortedGlob(path + "/*"):
-            totalSize += getSize(current, unit='b')
+            totalSize += getSize(current, unit="b")
         size = __convertSize(totalSize, unit)
-    if unit in ['a', 'auto', None]:
+    if unit in ["a", "auto", None]:
         tempSize = size
-        for u in ['k', 'm', 'g']:
+        for u in ["k", "m", "g"]:
             tempSize = tempSize / 1024
             if tempSize < 1024 and tempSize > 0:
                 size = tempSize
@@ -60,14 +72,16 @@ def getSize(path, unit='b', humanReadable=False, decimal=2):
         return size
 
 
-    
-
 class TIMESPENT_UNIT(Enum):
     DAYS = 1
     HOURS = 2
     MINUTES = 3
     SECONDS = 4
-def getLastModifiedTimeSpent(path, timeSpentUnit=TIMESPENT_UNIT.HOURS, logger=None, verbose=True):
+
+
+def getLastModifiedTimeSpent(
+    path, timeSpentUnit=TIMESPENT_UNIT.HOURS, logger=None, verbose=True
+):
     try:
         diff = time.time() - os.path.getmtime(path)
         if timeSpentUnit == TIMESPENT_UNIT.SECONDS:
@@ -86,6 +100,7 @@ def getLastModifiedTimeSpent(path, timeSpentUnit=TIMESPENT_UNIT.HOURS, logger=No
             logger.log(str(e))
     return 0
 
+
 def purgeOldFiles(pattern, maxTimeSpent, timeSpentUnit=TIMESPENT_UNIT.SECONDS):
     allPlugins = sortedGlob(pattern)
     for current in allPlugins:
@@ -93,14 +108,18 @@ def purgeOldFiles(pattern, maxTimeSpent, timeSpentUnit=TIMESPENT_UNIT.SECONDS):
         if timeSpent > maxTimeSpent:
             removeFile(current)
 
+
 def rename(src, dst):
-    return os.rename(src, dst) 
+    return os.rename(src, dst)
+
 
 def strToFileName(*args, **kwargs):
     return strToFilename(*args, **kwargs)
 
+
 def move(src, dst):
     return shutil.move(src, dst)
+
 
 def strToFilename(text):
     """
@@ -109,26 +128,32 @@ def strToFilename(text):
     """
     text = text.replace(" ", "_")
     valid_chars = "-_.()%s%s" % (string.ascii_letters, string.digits)
-    return ''.join(c for c in text if c in valid_chars)
+    return "".join(c for c in text if c in valid_chars)
+
 
 def serialize(obj, path):
     if path.endswith(".gzip"):
-        with gzip.open(path, 'wb') as f:
+        with gzip.open(path, "wb") as f:
             pickle.dump(obj, f)
     else:
-        with open(path, 'wb') as handle:
+        with open(path, "wb") as handle:
             pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
 def deserialize(path):
     if path.endswith(".gzip"):
-        with gzip.open(path, 'rb') as f:
+        with gzip.open(path, "rb") as f:
             return pickle.load(f)
     else:
-        with open(path, 'rb') as handle:
+        with open(path, "rb") as handle:
             return pickle.load(handle)
 
+
 def serializeToStr(obj):
-    # https://stackoverflow.com/questions/30469575/how-to-pickle-and-unpickle-to-portable-string-in-python-3
+    # https://stackoverflow.com/questions/30469575/how-to-pickle-and-unpickle-to-portable-string-in-python-3
     return codecs.encode(pickle.dumps(obj), "base64").decode()
+
+
 def deserializeFromStr(obj):
     return pickle.loads(codecs.decode(obj.encode(), "base64"))
 
@@ -147,19 +172,21 @@ def copyDir(src, dst):
     dirName = dir.split("/")[-1]
     return copy_tree(src, dst + "/" + dirName)
 
+
 def copyFile(src, dst):
     """
-        Copy the file src to the file or directory dst. If dst is a directory, a file with the same basename as src is created (or overwritten) in the directory specified. Permission bits are copied. src and dst are path names given as strings.
+    Copy the file src to the file or directory dst. If dst is a directory, a file with the same basename as src is created (or overwritten) in the directory specified. Permission bits are copied. src and dst are path names given as strings.
 
-        This function doesn't work when you give a file as the dst....
+    This function doesn't work when you give a file as the dst....
 
-        WARNING `copyfile` function doc: dst must be the complete target file name; look at shutil.copy() for a copy that accepts a target directory path
+    WARNING `copyfile` function doc: dst must be the complete target file name; look at shutil.copy() for a copy that accepts a target directory path
     """
     return shutil.copy(src, dst)
 
+
 def getAllNumbers(text):
     """
-        This function is a copy of systemtools.basics.getAllNumbers
+    This function is a copy of systemtools.basics.getAllNumbers
     """
     if text is None:
         return None
@@ -168,10 +195,15 @@ def getAllNumbers(text):
         # Remove space between digits :
         spaceNumberExists = True
         while spaceNumberExists:
-            text = re.sub('(([^.,0-9]|^)[0-9]+) ([0-9])', '\\1\\3', text, flags=re.UNICODE)
-            if re.search('([^.,0-9]|^)[0-9]+ [0-9]', text) is None:
+            text = re.sub(
+                "(([^.,0-9]|^)[0-9]+) ([0-9])",
+                "\\1\\3",
+                text,
+                flags=re.UNICODE,
+            )
+            if re.search("([^.,0-9]|^)[0-9]+ [0-9]", text) is None:
                 spaceNumberExists = False
-        numberRegex = '[-+]?[0-9]+[.,][0-9]+|[0-9]+'
+        numberRegex = "[-+]?[0-9]+[.,][0-9]+|[0-9]+"
         allMatchIter = re.finditer(numberRegex, text)
         if allMatchIter is not None:
             for current in allMatchIter:
@@ -189,32 +221,38 @@ def getAllNumbers(text):
 def mkdir(path):
     mkdirIfNotExists(path)
 
+
 def mkdirIfNotExists(path):
     """
-        This function make dirs recursively like mkdir -p in bash
+    This function make dirs recursively like mkdir -p in bash
     """
     os.makedirs(path, exist_ok=True)
 
+
 def touch(fname, times=None):
-    with open(fname, 'a'):
+    with open(fname, "a"):
         os.utime(fname, times)
 
+
 def replaceInFile(path, listSrc, listRep):
-    with open(path, 'r') as f :
+    with open(path, "r") as f:
         filedata = f.read()
     for i in range(len(listSrc)):
         src = listSrc[i]
         rep = listRep[i]
         filedata = filedata.replace(src, rep)
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         f.write(filedata)
+
 
 def fileExists(filePath):
     return os.path.exists(filePath)
 
+
 def globRemove(globPattern):
     filesPaths = sortedGlob(globPattern)
     removeFiles(filesPaths)
+
 
 def removeFile(path):
     print("DEPRECATED file or dir removal")
@@ -225,18 +263,23 @@ def removeFile(path):
             os.remove(currentPath)
         except OSError:
             pass
+
+
 def removeFiles(path):
     print("DEPRECATED file or dir removal")
     removeFile(path)
+
+
 def removeAll(path):
     print("DEPRECATED file or dir removal")
     removeFile(path)
+
 
 def fileToStr(path, split=False, encoding=None):
     if split:
         return fileToStrList(path)
     else:
-        with open(path, 'r', encoding=encoding) as myfile:
+        with open(path, "r", encoding=encoding) as myfile:
             data = myfile.read()
         return data
 
@@ -248,6 +291,7 @@ def fileToStrList(*args, removeDuplicates=False, **kwargs):
     else:
         return list(result)
 
+
 def basicLog(text, logger, verbose):
     if verbose:
         if text is not None and text != "":
@@ -256,12 +300,15 @@ def basicLog(text, logger, verbose):
             else:
                 logger.info(text)
 
-def fileToStrListYielder(path,
-                         strip=True,
-                         skipBlank=True,
-                         commentStart="###",
-                         logger=None,
-                         verbose=False):
+
+def fileToStrListYielder(
+    path,
+    strip=True,
+    skipBlank=True,
+    commentStart="###",
+    logger=None,
+    verbose=False,
+):
 
     if path is not None and isFile(path):
         commentCount = 0
@@ -270,7 +317,11 @@ def fileToStrListYielder(path,
                 isComment = False
                 if strip:
                     line = line.strip()
-                if commentStart is not None and len(commentStart) > 0 and line.startswith(commentStart):
+                if (
+                    commentStart is not None
+                    and len(commentStart) > 0
+                    and line.startswith(commentStart)
+                ):
                     commentCount += 1
                     isComment = True
                 if not isComment:
@@ -279,7 +330,11 @@ def fileToStrListYielder(path,
                     else:
                         yield line
         if commentCount > 0:
-            basicLog("We found " + str(commentCount) + " comments in " + path, logger, verbose)
+            basicLog(
+                "We found " + str(commentCount) + " comments in " + path,
+                logger,
+                verbose,
+            )
     else:
         basicLog(str(path) + " file not found.", logger, verbose)
 
@@ -291,9 +346,20 @@ def linesCount(filePath):
             count += 1
     return count
 
+
 def rm(*args, **kwargs):
     return remove(*args, **kwargs)
-def remove(path, secure=True, minSlashCount=5, doRaise=True, skipDirs=False, skipFiles=False, decreaseMinSlashCountForTmp=True):
+
+
+def remove(
+    path,
+    secure=True,
+    minSlashCount=5,
+    doRaise=True,
+    skipDirs=False,
+    skipFiles=False,
+    decreaseMinSlashCountForTmp=True,
+):
     if path is None or len(path) == 0:
         return
     if isinstance(path, str):
@@ -301,7 +367,7 @@ def remove(path, secure=True, minSlashCount=5, doRaise=True, skipDirs=False, ski
     for currentPath in path:
         if secure and decreaseMinSlashCountForTmp and minSlashCount > 0:
             minSlashCount -= minSlashCount
-        if secure and currentPath.count('/') < minSlashCount:
+        if secure and currentPath.count("/") < minSlashCount:
             errorMsg = "Not enough slashes in " + currentPath
             if doRaise:
                 raise Exception(errorMsg)
@@ -319,10 +385,13 @@ def remove(path, secure=True, minSlashCount=5, doRaise=True, skipDirs=False, ski
         if isFile(currentPath) and not skipFiles:
             try:
                 os.remove(currentPath)
-            except OSError as e: # this would be "except OSError, e:" before Python 2.6
-                if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
-                    raise # re-raise exception if a different error occurred
+            except OSError as e:  # this would be "except OSError, e:" before Python 2.6
+                if (
+                    e.errno != errno.ENOENT
+                ):  # errno.ENOENT = no such file or directory
+                    raise  # re-raise exception if a different error occurred
     return
+
 
 def removeIfExists(path):
     # print("DEPRECATED file or dir removal")
@@ -332,21 +401,30 @@ def removeIfExists(path):
     #     if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
     #         raise # re-raise exception if a different error occurred
     remove(path)
+
+
 def removeIfExistsSecure(path, slashCount=5):
     # print("DEPRECATED file or dir removal")
     # if path.count('/') >= slashCount:
     #     removeIfExists(path)
     remove(path, minSlashCount=slashCount)
 
+
 def removeDir(*args, **kwargs):
     print("DEPRECATED file or dir removal")
     return removeTreeIfExists(*args, **kwargs)
+
+
 def removeTreeIfExists(path):
     print("DEPRECATED file or dir removal")
     return shutil.rmtree(path, True)
+
+
 def removeDirSecure(*args, **kwargs):
     print("DEPRECATED file or dir removal")
     return removeTreeIfExistsSecure(*args, **kwargs)
+
+
 def removeTreeIfExistsSecure(path, slashCount=5):
     # print("DEPRECATED file or dir removal")
     # if path.count('/') >= slashCount:
@@ -354,11 +432,13 @@ def removeTreeIfExistsSecure(path, slashCount=5):
     # return None
     remove(path, minSlashCount=slashCount)
 
+
 def strListToTmpFile(theList, *args, **kwargs):
     text = ""
     for current in theList:
         text += current + "\n"
     return strToTmpFile(text, *args, **kwargs)
+
 
 def strToTmpFile(text, name=None, ext="", addRandomStr=False, *args, **kwargs):
     if text is None:
@@ -376,12 +456,19 @@ def strToTmpFile(text, name=None, ext="", addRandomStr=False, *args, **kwargs):
     strToFile(text, path)
     return path
 
+
 def strToFileAppend(*args, **kwargs):
     appendFile(*args, **kwargs)
+
+
 def appendToFile(*args, **kwargs):
     appendFile(*args, **kwargs)
+
+
 def appendStrToFile(*args, **kwargs):
     appendFile(*args, **kwargs)
+
+
 def appendFile(text, path, addBreakLine=True):
     if text is None:
         return
@@ -393,21 +480,23 @@ def appendFile(text, path, addBreakLine=True):
         f.write(text)
 
 
-
 def strListToFile(*args, **kwargs):
     strToFile(*args, **kwargs)
+
+
 def strToFile(text, path):
-#     if not isDir(getDir(path)) and isDir(getDir(text)):
-#         path, text = text, path
+    #     if not isDir(getDir(path)) and isDir(getDir(text)):
+    #         path, text = text, path
     if isinstance(text, list):
         text = "\n".join(text)
     with open(path, "w") as f:
         f.write(text)
 
+
 def normalizeNumericalFilePaths(globRegex):
     """
-        This function get a glob path and rename all file1.json file2.json ... file20.json
-        to file01.json file02.json ... file20.json to better sort the folder by file names
+    This function get a glob path and rename all file1.json file2.json ... file20.json
+    to file01.json file02.json ... file20.json to better sort the folder by file names
     """
     # We get all paths:
     allPaths = sortedGlob(globRegex)
@@ -441,7 +530,9 @@ def normalizeNumericalFilePaths(globRegex):
         currentRegex = "0*" + str(currentInt)
         zerosCountToAdd = digitCountHasToBe - len(str(currentInt))
         zerosStr = "0" * zerosCountToAdd
-        newFilename = re.sub(currentRegex, zerosStr + str(currentInt), filename, count=1)
+        newFilename = re.sub(
+            currentRegex, zerosStr + str(currentInt), filename, count=1
+        )
         newFilename = dir + newFilename + "." + ext
         if currentPath != newFilename:
             os.rename(currentPath, newFilename)
@@ -450,16 +541,27 @@ def normalizeNumericalFilePaths(globRegex):
     return True
 
 
-def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=False, logger=None, verbose=True):
+def encryptFile(
+    path,
+    key,
+    text=None,
+    ext=".encrypted.zip",
+    remove=False,
+    logger=None,
+    verbose=True,
+):
     """
-        This function encrypt a file, if you give text in `text` parameter,
-        the function will create the file.
-        Return True if all is ok.
+    This function encrypt a file, if you give text in `text` parameter,
+    the function will create the file.
+    Return True if all is ok.
     """
     try:
         if text is not None:
             strToFile(text, path)
-        rc = subprocess.call(['7z', 'a', '-p' + key, '-y', path + ext, path], stdout=open(os.devnull, 'wb'))
+        rc = subprocess.call(
+            ["7z", "a", "-p" + key, "-y", path + ext, path],
+            stdout=open(os.devnull, "wb"),
+        )
         if remove:
             removeFile(path)
         return True
@@ -472,9 +574,11 @@ def encryptFile(path, key, text=None, ext=".encrypted.zip", remove=False, logger
         return False
 
 
-def fileToMultiParts(filePath, outputDir=None, nbParts=40, compress=True, checkLineCount=False):
+def fileToMultiParts(
+    filePath, outputDir=None, nbParts=40, compress=True, checkLineCount=False
+):
     """
-        This function take a file path and write it in muliparts
+    This function take a file path and write it in muliparts
     """
     if outputDir is None:
         outputDir = filePath + "-multiparts"
@@ -485,11 +589,16 @@ def fileToMultiParts(filePath, outputDir=None, nbParts=40, compress=True, checkL
         c = linesCount(filePath)
         if nbParts > c:
             nbParts = c
-    with open(filePath, 'r') as f:
+    with open(filePath, "r") as f:
         if compress:
-            files = [bz2.open(outputDir + '/%d.txt.bz2' % i, 'wt') for i in range(nbParts)]
+            files = [
+                bz2.open(outputDir + "/%d.txt.bz2" % i, "wt")
+                for i in range(nbParts)
+            ]
         else:
-            files = [open(outputDir + '/%d.txt' % i, 'w') for i in range(nbParts)]
+            files = [
+                open(outputDir + "/%d.txt" % i, "w") for i in range(nbParts)
+            ]
         for i, line in enumerate(f):
             files[i % nbParts].write(line)
         for f in files:
@@ -497,19 +606,21 @@ def fileToMultiParts(filePath, outputDir=None, nbParts=40, compress=True, checkL
     return outputDir
 
 
-def decryptFile(path, key, ext=".encrypted.zip", remove=False, logger=None, verbose=True):
+def decryptFile(
+    path, key, ext=".encrypted.zip", remove=False, logger=None, verbose=True
+):
     """
-        This function decrypt a file and return the text
+    This function decrypt a file and return the text
     """
     try:
         (dir, _, _, _) = decomposePath(path)
         key = str.encode(key)
-        if path[-len(ext):] != ext:
+        if path[-len(ext) :] != ext:
             decryptedFilePath = path
             cryptedFilePath = decryptedFilePath + ext
         else:
             cryptedFilePath = path
-            decryptedFilePath = path[:-len(ext)]
+            decryptedFilePath = path[: -len(ext)]
         zipfile.ZipFile(cryptedFilePath).extractall(dir, None, key)
         if remove:
             removeFile(cryptedFilePath)
@@ -522,25 +633,29 @@ def decryptFile(path, key, ext=".encrypted.zip", remove=False, logger=None, verb
                 logger.error(str(e))
         return None
 
+
 def download(url, dirPath=None, skipIfExists=False):
     """
-        Based on https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py/39217788
+    Based on https://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py/39217788
     """
     if dirPath is None:
         dirPath = tmpDir("downloads")
-    fileName = strToFilename(url.split('/')[-1])
+    fileName = strToFilename(url.split("/")[-1])
     filePath = dirPath + "/" + fileName
     if skipIfExists and isFile(filePath):
         return filePath
     else:
         r = requests.get(url, stream=True)
-        with open(filePath, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024): 
+        with open(filePath, "wb") as f:
+            for chunk in r.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
         return filePath
 
-def extract(filePath, destinationDir=None, upIfUnique=True, doDoubleExtract=True):
+
+def extract(
+    filePath, destinationDir=None, upIfUnique=True, doDoubleExtract=True
+):
     if not isFile(filePath):
         print(filePath + " does not exist")
         return None
@@ -576,7 +691,9 @@ def extract(filePath, destinationDir=None, upIfUnique=True, doDoubleExtract=True
     # We move the element:
     if destinationDir is not None:
         # We move it:
-        newDestFilePath = destinationDir + "/" + decomposePath(extractedDirPath)[3]
+        newDestFilePath = (
+            destinationDir + "/" + decomposePath(extractedDirPath)[3]
+        )
         shutil.move(extractedDirPath, newDestFilePath)
         # We update extractedDirPath:
         extractedDirPath = newDestFilePath
@@ -598,18 +715,21 @@ def testSizeHumanSize():
     path = "/home/hayj/tmp/d2v"
     path = "/home/hayj/tmp/psl.txt"
     print(os.path.getsize(path))
-    print(getSize(path, humanReadable=True, unit='m'))
+    print(getSize(path, humanReadable=True, unit="m"))
     print(getHumainSize(path))
+
 
 def clearRtmp(*args, **kwargs):
     return cleanRtmp(*args, **kwargs)
+
+
 def cleanRtmp(*args, **kwargs):
     if len(args) == 0:
         args = ("/tmp",)
     return cleanDir(*args, **kwargs)
 
-def cleanDir\
-(
+
+def cleanDir(
     path,
     startsWith=None,
     endsWith=None,
@@ -619,19 +739,31 @@ def cleanDir\
     logger=None,
     dryRun=False,
     removeKwargs={},
-    pathContains="/tmp" # For security purpose
-
+    pathContains="/tmp",  # For security purpose
 ):
     me = getpass.getuser()
     elementsToDelete = []
     for element in sortedGlob(path + "/*"):
         if onlyOwner and owner(element) != me:
             continue
-        if olderHour is not None and getLastModifiedTimeSpent(element, timeSpentUnit=TIMESPENT_UNIT.HOURS, logger=logger, verbose=False) < olderHour:
+        if (
+            olderHour is not None
+            and getLastModifiedTimeSpent(
+                element,
+                timeSpentUnit=TIMESPENT_UNIT.HOURS,
+                logger=logger,
+                verbose=False,
+            )
+            < olderHour
+        ):
             continue
-        if startsWith is not None and not decomposePath(element)[3].startswith(startsWith):
+        if startsWith is not None and not decomposePath(element)[3].startswith(
+            startsWith
+        ):
             continue
-        if endsWith is not None and not decomposePath(element)[3].endswith(endsWith):
+        if endsWith is not None and not decomposePath(element)[3].endswith(
+            endsWith
+        ):
             continue
         elementsToDelete.append(element)
     for element in elementsToDelete:
@@ -646,30 +778,30 @@ def cleanDir\
                     if logger is not None:
                         try:
                             logger.log(msg)
-                        except: pass
+                        except:
+                            pass
                     else:
                         print(msg)
             except Exception as e:
                 print(e)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # testRM()
     # print(download("http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"))
     # extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz")
     # print(extract("/home/hayj/tmp/downloads/aclImdb_v1.tar.gz", tmpDir("aaa")))
-#     normalizeNumericalFilePaths("/home/hayj/test/test1/*.txt")
-#     normalizeNumericalFilePaths("/users/modhel/hayj/NoSave/Data/TwitterArchiveOrg/Converted/*.bz2")
-#     strToTmpFile("hoho", subDir="test", ext="txt")
-#     strToFile("haha", tmpDir(subDir="test") + "/test.txt")
+    #     normalizeNumericalFilePaths("/home/hayj/test/test1/*.txt")
+    #     normalizeNumericalFilePaths("/users/modhel/hayj/NoSave/Data/TwitterArchiveOrg/Converted/*.bz2")
+    #     strToTmpFile("hoho", subDir="test", ext="txt")
+    #     strToFile("haha", tmpDir(subDir="test") + "/test.txt")
 
-#     key = 'AAA'
-#     text = "bbb"
-#     print(encryptFile(homeDir() + '/tmp/titi.txt', key, text=text))
-#
-#
-#     text = decryptFile(homeDir() + '/tmp/titi.txt', key)
-#
-#     print(text)
+    #     key = 'AAA'
+    #     text = "bbb"
+    #     print(encryptFile(homeDir() + '/tmp/titi.txt', key, text=text))
+    #
+    #
+    #     text = decryptFile(homeDir() + '/tmp/titi.txt', key)
+    #
+    #     print(text)
     cleanDir(tmpDir(), startsWith=None, olderHour=4, verbose=True, dryRun=True)
-
-

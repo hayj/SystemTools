@@ -83,6 +83,11 @@ with open(thelibFolder + '/README.rst', "r") as fh:
 
 assert version is not None
 
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
+
 # The whole setup:
 setup(
 
@@ -111,6 +116,9 @@ setup(
     
     # For handle the MANIFEST.in:
     include_package_data=True,
+
+    long_description=long_description,
+    long_description_content_type='text/markdown',
 
     # The url to the official repo:
     # url='https://',
